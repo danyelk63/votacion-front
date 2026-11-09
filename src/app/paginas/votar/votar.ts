@@ -9,7 +9,6 @@ import { VotacionApi } from '../../core/votacion-api';
 import { FormularioVoto } from '../../componentes/formulario-voto/formulario-voto';
 import { PanelCluster } from '../../componentes/panel-cluster/panel-cluster';
 
-/** Vista 1: registrar el voto. */
 @Component({
   selector: 'app-votar',
   imports: [FormularioVoto, PanelCluster, CardModule, RouterLink],

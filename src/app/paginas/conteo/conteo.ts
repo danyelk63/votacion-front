@@ -11,7 +11,6 @@ import { sondear } from '../../core/sondeo';
 import { VotacionApi } from '../../core/votacion-api';
 import { NOMBRE_ROL, SEVERIDAD_ROL } from '../../compartido/origen';
 
-/** Vista: conteo de votos en vivo, cómo está distribuido y cómo lo ve cada nodo. */
 @Component({
   selector: 'app-conteo',
   imports: [CardModule, TableModule, TagModule, TooltipModule, IconFieldModule, InputIconModule, InputTextModule, DatePipe],
@@ -38,7 +37,6 @@ export class Conteo {
     return primeros.length === 1 ? primeros[0] : null;
   });
 
-  /** Cuántos votos tiene aplicados cada nodo frente al total confirmado. */
   protected readonly porNodo = computed(() => {
     const total = this.resultados.valor()?.total ?? 0;
     return (this.cluster.valor()?.nodos ?? []).map((n) => ({

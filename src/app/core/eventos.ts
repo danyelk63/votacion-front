@@ -4,12 +4,6 @@ import { environment } from '../../environments/environment';
 
 const MAX_EVENTOS = 5000;
 
-/**
- * Conexión WebSocket con el gateway. Recibe en tiempo real cada evento que
- * generan los nodos (que a su vez se los envían al gateway por callback RMI).
- *
- * En desarrollo "/ws" se redirige a ws://localhost:8081 (proxy.conf.json).
- */
 @Injectable({ providedIn: 'root' })
 export class EventosService implements OnDestroy {
   private socket: WebSocket | null = null;
@@ -19,7 +13,7 @@ export class EventosService implements OnDestroy {
   private readonly _eventos = signal<Evento[]>([]);
   readonly eventos = this._eventos.asReadonly();
   readonly conectado = signal(false);
-  /** Aumenta cada vez que alguien usa "Vaciar todo" (las vistas limpian su estado). */
+
   readonly reinicios = signal(0);
   readonly total = computed(() => this._eventos().length);
 
@@ -42,11 +36,9 @@ export class EventosService implements OnDestroy {
 
   private procesar(m: MensajeWs): void {
     if (m.tipo === 'reinicio') {
-      // "Vaciar todo": el servidor borró su historial; esta pantalla también.
       this._eventos.set([]);
       this.reinicios.update((n) => n + 1);
     } else if (m.tipo === 'historial') {
-      // Al (re)conectar llega todo el historial: se fusiona sin duplicar.
       const conocidos = new Map(this._eventos().map((e) => [e.secuencia, e]));
       for (const e of m.eventos) conocidos.set(e.secuencia, e);
       this._eventos.set([...conocidos.values()].sort((a, b) => a.secuencia - b.secuencia).slice(-MAX_EVENTOS));

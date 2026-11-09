@@ -1,5 +1,3 @@
-// Tipos que devuelve el gateway REST (ver votacion-back/README.md).
-
 export interface Candidato {
   id: string;
   nombre: string;
@@ -54,7 +52,6 @@ export interface ListadoVotos {
 
 export type Rol = 'LIDER' | 'SEGUIDOR' | 'CANDIDATO' | 'CAIDO';
 
-
 export interface EstadoNodo {
   id: number;
   direccion: string;
@@ -83,12 +80,9 @@ export interface ErrorApi {
   detalles?: string[];
 }
 
-// ------------------------------------------------------------------ trazabilidad
-
 export type RolEvento = 'LIDER' | 'SEGUIDOR' | 'CANDIDATO' | 'GATEWAY';
 export type Categoria = 'SISTEMA' | 'ELECCION' | 'VOTO' | 'REPLICACION' | 'PERSISTENCIA' | 'RED' | 'USUARIO';
 
-/** Evento que llega por WebSocket (generado por un nodo o por el gateway). */
 export interface Evento {
   secuencia: number;
   hora: string;

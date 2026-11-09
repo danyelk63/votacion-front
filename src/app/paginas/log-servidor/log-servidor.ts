@@ -18,10 +18,6 @@ import { CATEGORIAS, INFO_CATEGORIA } from '../../compartido/categorias';
 import { HoraPipe } from '../../compartido/hora';
 import { Origen } from '../../compartido/origen';
 
-/**
- * Vista: log del servidor en tiempo real. Todo lo que hacen el gateway y cada
- * nodo (con su tipo: líder / seguidor / candidato), tal como llega por WebSocket.
- */
 @Component({
   selector: 'app-log-servidor',
   imports: [

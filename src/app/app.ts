@@ -50,7 +50,6 @@ export class App {
 
   protected readonly oscuro = signal(this.preferenciaInicial());
 
-  /** Se da un margen antes de avisar, para no mostrarlo en una conexión normal. */
   private readonly margenCumplido = signal(false);
   protected readonly despertando = computed(() => this.margenCumplido() && !this.eventos.conectado());
 
@@ -104,7 +103,6 @@ export class App {
     try {
       localStorage.setItem('tema', this.oscuro() ? 'oscuro' : 'claro');
     } catch {
-      /* almacenamiento no disponible */
     }
   }
 
@@ -117,7 +115,6 @@ export class App {
       const guardado = localStorage.getItem('tema');
       if (guardado) return guardado === 'oscuro';
     } catch {
-      /* almacenamiento no disponible */
     }
     return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
   }

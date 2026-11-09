@@ -2,10 +2,6 @@ import { DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject, catchError, exhaustMap, map, merge, of, timer } from 'rxjs';
 
-/**
- * Consulta periódicamente una fuente (polling) y expone el último valor como signal.
- * Llamar en el contexto de inyección de un componente.
- */
 export function sondear<T>(fuente: () => Observable<T>, cadaMs: number) {
   const valor = signal<T | null>(null);
   const error = signal(false);

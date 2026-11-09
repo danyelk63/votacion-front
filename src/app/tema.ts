@@ -1,7 +1,6 @@
 import { definePreset } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 
-/** Tema PrimeNG: Aura con primario índigo. */
 export const TemaVotacion = definePreset(Aura, {
   semantic: {
     primary: {

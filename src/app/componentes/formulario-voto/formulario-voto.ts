@@ -48,7 +48,6 @@ export class FormularioVoto {
   protected readonly error = signal<ErrorApi | null>(null);
 
   constructor() {
-    // Al vaciar todo, se quita el resultado del último voto.
     const eventos = inject(EventosService);
     let previo = eventos.reinicios();
     effect(() => {

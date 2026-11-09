@@ -20,7 +20,6 @@ interface Fase {
   etapas: string[];
 }
 
-/** Las fases por las que pasa una petición, de la llegada al archivo. */
 const FASES: Fase[] = [
   {
     titulo: 'Llega al servidor',
@@ -83,10 +82,6 @@ interface ResumenTraza {
   estado: string;
 }
 
-/**
- * Vista: qué hace el servidor con los datos. Reconstruye, con los eventos en
- * tiempo real, el recorrido de una petición (su "traza") por todo el sistema.
- */
 @Component({
   selector: 'app-procesamiento',
   imports: [ButtonModule, CardModule, TableModule, TabsModule, TagModule, TimelineModule, HoraPipe, Origen],
@@ -94,7 +89,6 @@ interface ResumenTraza {
   styleUrl: './procesamiento.scss',
 })
 export class Procesamiento {
-  /** ?traza=xxxx en la URL */
   readonly traza = input<string>();
 
   private readonly servicio = inject(EventosService);
@@ -148,7 +142,6 @@ export class Procesamiento {
     return evs.length > 1 ? Date.parse(evs[evs.length - 1].hora) - Date.parse(evs[0].hora) : 0;
   });
 
-  /** Qué hizo cada nodo con esta petición. */
   protected readonly porNodo = computed(() => {
     const nodos = new Map<number, { id: number; rol: string; rolId: string; recibio?: Evento; aplico?: Evento; guardo?: Evento }>();
     for (const e of this.eventos()) {
@@ -166,8 +159,6 @@ export class Procesamiento {
     return [...nodos.values()].sort((a, b) => a.id - b.id);
   });
 
-  // --------------------------------------------------------------- archivos de los nodos
-
   protected readonly archivos = signal<Archivos | null>(null);
   protected readonly pestana = signal<string | number | undefined>('1');
   private readonly escrituras = computed(
@@ -178,7 +169,6 @@ export class Procesamiento {
   );
 
   constructor() {
-    // Relee los archivos cada vez que algún nodo escribe en el suyo.
     effect(() => {
       this.escrituras();
       untracked(() => this.cargarArchivos());
@@ -213,7 +203,6 @@ export class Procesamiento {
     return 'danger' as const;
   }
 
-  /** Texto corto para la etiqueta de estado. */
   protected etiquetaEstado(estado: string): string {
     if (estado === 'RECHAZADO_CEDULA_DUPLICADA') return 'DUPLICADO';
     if (estado === 'RECHAZADO_DATOS_INVALIDOS') return 'INVÁLIDO';

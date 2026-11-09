@@ -10,7 +10,6 @@ import { sondear } from '../../core/sondeo';
 import { VotacionApi } from '../../core/votacion-api';
 import { ICONO_ROL, NOMBRE_ROL, SEVERIDAD_ROL } from '../../compartido/origen';
 
-/** Estado del clúster en vivo, con botones para simular caídas. */
 @Component({
   selector: 'app-panel-cluster',
   imports: [ButtonModule, CardModule, ProgressBarModule, TagModule, TooltipModule],

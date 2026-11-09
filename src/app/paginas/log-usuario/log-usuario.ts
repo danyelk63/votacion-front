@@ -27,10 +27,6 @@ interface FilaUsuario {
   traza: string | null;
 }
 
-/**
- * Vista: log (auditoría) de usuarios. El gateway registra cada acción en
- * datos/gateway/usuarios.log y la publica como evento USUARIO por WebSocket.
- */
 @Component({
   selector: 'app-log-usuario',
   imports: [

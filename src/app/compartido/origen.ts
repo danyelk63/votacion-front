@@ -25,7 +25,6 @@ export const ICONO_ROL: Record<string, string> = {
   GATEWAY: 'pi pi-arrow-right-arrow-left',
 };
 
-/** Quién generó un evento: "Nodo 2 [Líder] t3" o "Gateway". */
 @Component({
   selector: 'app-origen',
   imports: [TagModule],

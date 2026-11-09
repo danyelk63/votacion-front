@@ -10,7 +10,6 @@
   <p-card class="tile oper"><div class="tile-cuerpo"><span class="hero">{{ totales().operador }}</span><span class="muted">acciones sobre nodos</span></div></p-card>
 </div>
 
-
 <p-card>
   <ng-template #title>Acciones en tiempo real</ng-template>
   <p-table #tabla [value]="filas()" dataKey="secuencia" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"

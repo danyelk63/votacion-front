@@ -1,6 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-/** Hora local con milisegundos: 14:05:09.123 */
 @Pipe({ name: 'hora' })
 export class HoraPipe implements PipeTransform {
   transform(iso: string | null | undefined, conFecha = false): string {

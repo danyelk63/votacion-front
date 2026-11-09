@@ -13,12 +13,6 @@ import {
   SolicitudVoto,
 } from './modelos';
 
-/**
- * Cliente del API Gateway. El navegador no habla RMI: el gateway Java recibe
- * estas peticiones HTTP y las convierte en llamadas RMI a los nodos del clúster.
- *
- * En desarrollo "/api" va al gateway local (proxy.conf.json); en producción, a Render.
- */
 @Injectable({ providedIn: 'root' })
 export class VotacionApi {
   private readonly http = inject(HttpClient);
@@ -32,7 +26,6 @@ export class VotacionApi {
     return this.http.post<ResultadoRegistro>(`${this.base}/votos`, voto);
   }
 
-  /** Vacía todo (votos, logs y archivos) y los nodos arrancan de cero. */
   vaciarTodo(): Observable<{ mensaje: string }> {
     return this.http.post<{ mensaje: string }>(`${this.base}/reiniciar`, {});
   }

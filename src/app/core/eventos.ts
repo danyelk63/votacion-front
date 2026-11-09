@@ -19,6 +19,8 @@ export class EventosService implements OnDestroy {
   private readonly _eventos = signal<Evento[]>([]);
   readonly eventos = this._eventos.asReadonly();
   readonly conectado = signal(false);
+  /** Aumenta cada vez que alguien usa "Vaciar todo" (las vistas limpian su estado). */
+  readonly reinicios = signal(0);
   readonly total = computed(() => this._eventos().length);
 
   constructor() {
@@ -39,7 +41,11 @@ export class EventosService implements OnDestroy {
   }
 
   private procesar(m: MensajeWs): void {
-    if (m.tipo === 'historial') {
+    if (m.tipo === 'reinicio') {
+      // "Vaciar todo": el servidor borró su historial; esta pantalla también.
+      this._eventos.set([]);
+      this.reinicios.update((n) => n + 1);
+    } else if (m.tipo === 'historial') {
       // Al (re)conectar llega todo el historial: se fusiona sin duplicar.
       const conocidos = new Map(this._eventos().map((e) => [e.secuencia, e]));
       for (const e of m.eventos) conocidos.set(e.secuencia, e);

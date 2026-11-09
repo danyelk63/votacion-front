@@ -6,7 +6,9 @@ import { TagModule } from 'primeng/tag';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { EventosService } from './core/eventos';
+import { VotacionApi } from './core/votacion-api';
 import { CLASE_OSCURO } from './tema';
 
 interface Seccion {
@@ -33,6 +35,10 @@ interface Seccion {
 })
 export class App {
   protected readonly eventos = inject(EventosService);
+  private readonly api = inject(VotacionApi);
+  private readonly confirmacion = inject(ConfirmationService);
+  private readonly mensajes = inject(MessageService);
+  protected readonly vaciando = signal(false);
 
   protected readonly secciones: Seccion[] = [
     { ruta: '/votar', etiqueta: 'Registrar voto', icono: 'pi pi-check-square' },
@@ -51,6 +57,45 @@ export class App {
   constructor() {
     this.aplicarTema();
     setTimeout(() => this.margenCumplido.set(true), 2500);
+  }
+
+  protected confirmarVaciado(): void {
+    this.confirmacion.confirm({
+      header: 'Vaciar todo',
+      message:
+        'Se borran los votos, el log del servidor, el log de usuarios y los archivos de los 3 nodos. ' +
+        'El clúster arranca de cero (término 0) y elige un líder nuevo. ¿Continuar?',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, vaciar todo',
+      rejectLabel: 'Cancelar',
+      acceptButtonProps: { severity: 'danger', icon: 'pi pi-eraser' },
+      rejectButtonProps: { severity: 'secondary', outlined: true },
+      accept: () => this.vaciar(),
+    });
+  }
+
+  private vaciar(): void {
+    this.vaciando.set(true);
+    this.api.vaciarTodo().subscribe({
+      next: () => {
+        this.vaciando.set(false);
+        this.mensajes.add({
+          severity: 'success',
+          summary: 'Todo vacío',
+          detail: 'El clúster arrancó de cero y está eligiendo un líder nuevo',
+          life: 4000,
+        });
+      },
+      error: (e) => {
+        this.vaciando.set(false);
+        this.mensajes.add({
+          severity: 'error',
+          summary: 'No se pudo vaciar',
+          detail: e.error?.error ?? 'El gateway no responde',
+          life: 6000,
+        });
+      },
+    });
   }
 
   protected alternarTema(): void {

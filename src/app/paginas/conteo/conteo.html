@@ -1,7 +1,6 @@
 <div class="encabezado-pagina">
   <div>
     <h1>Conteo de votos</h1>
-    <p>Resultados confirmados por el clúster, leídos del líder en tiempo real.</p>
   </div>
   @if (resultados.valor(); as r) {
     <p-tag [severity]="r.consistente ? 'success' : 'warn'" [icon]="r.consistente ? 'pi pi-verified' : 'pi pi-info-circle'"
@@ -74,7 +73,6 @@
 <div class="dos-columnas">
   <p-card>
     <ng-template #title>Conteo en cada nodo</ng-template>
-    <ng-template #subtitle>Todos los nodos deben llegar al mismo número: los votos están replicados.</ng-template>
     <p-table [value]="porNodo()" dataKey="id" size="small" [scrollable]="true">
       <ng-template #header>
         <tr>

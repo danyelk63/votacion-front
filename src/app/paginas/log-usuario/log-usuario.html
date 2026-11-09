@@ -1,10 +1,6 @@
 <div class="encabezado-pagina">
   <div>
     <h1>Log del usuario</h1>
-    <p>
-      Auditoría de lo que hace cada persona: quién, cuándo (en milisegundos), desde qué IP y navegador, qué pidió, qué
-      nodo la atendió y qué respondió el sistema. Las cédulas se guardan enmascaradas.
-    </p>
   </div>
 </div>
 
@@ -15,14 +11,6 @@
   <p-card class="tile oper"><div class="tile-cuerpo"><span class="hero">{{ totales().operador }}</span><span class="muted">acciones sobre nodos</span></div></p-card>
 </div>
 
-<p-panel header="Cómo se genera este log" [toggleable]="true" class="panel-pasos">
-  <ol class="pasos">
-    <li><span class="num">1</span><div>El navegador envía la acción al <b>gateway</b> por HTTP (por ejemplo <code>POST /api/votos</code>).</div></li>
-    <li><span class="num">2</span><div>El gateway toma la <b>IP</b> y el <b>navegador</b> (cabecera User-Agent), asigna una <b>traza</b> y ejecuta la acción en el clúster por <b>RMI</b>.</div></li>
-    <li><span class="num">3</span><div>Con el resultado agrega <b>una línea</b> a <code>usuarios.log</code>: hora, acción, resultado, datos de la persona (cédula enmascarada), nodo que atendió y traza.</div></li>
-    <li><span class="num">4</span><div>Publica la misma acción como evento <b>USUARIO</b>, que llega a esta tabla por <b>WebSocket</b> en tiempo real.</div></li>
-  </ol>
-</p-panel>
 
 <p-card>
   <ng-template #title>Acciones en tiempo real</ng-template>

@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -12,6 +12,7 @@ import { MessageModule } from 'primeng/message';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { Candidato, ErrorApi, ResultadoRegistro } from '../../core/modelos';
 import { VotacionApi } from '../../core/votacion-api';
+import { EventosService } from '../../core/eventos';
 
 @Component({
   selector: 'app-formulario-voto',
@@ -45,6 +46,21 @@ export class FormularioVoto {
   protected readonly enviando = signal(false);
   protected readonly exito = signal<ResultadoRegistro | null>(null);
   protected readonly error = signal<ErrorApi | null>(null);
+
+  constructor() {
+    // Al vaciar todo, se quita el resultado del último voto.
+    const eventos = inject(EventosService);
+    let previo = eventos.reinicios();
+    effect(() => {
+      const actual = eventos.reinicios();
+      if (actual !== previo) {
+        previo = actual;
+        this.exito.set(null);
+        this.error.set(null);
+        this.form.reset();
+      }
+    });
+  }
 
   protected invalido(campo: 'nombre' | 'cedula' | 'candidato'): boolean {
     const c = this.form.controls[campo];

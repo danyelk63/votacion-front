@@ -5,7 +5,6 @@ import { CardModule } from 'primeng/card';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
-import { PanelModule } from 'primeng/panel';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { EventosService } from '../../core/eventos';
@@ -41,7 +40,6 @@ interface FilaUsuario {
     IconFieldModule,
     InputIconModule,
     InputTextModule,
-    PanelModule,
     TableModule,
     TagModule,
     HoraPipe,

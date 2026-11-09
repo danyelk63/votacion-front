@@ -21,6 +21,17 @@
     </nav>
 
     <div class="acciones">
+      <p-button
+        label="Vaciar todo"
+        icon="pi pi-eraser"
+        severity="danger"
+        [text]="true"
+        size="small"
+        [loading]="vaciando()"
+        (onClick)="confirmarVaciado()"
+        pTooltip="Borra votos, logs y archivos para empezar la demostración de cero"
+        tooltipPosition="bottom"
+      />
       <p-tag
         [severity]="eventos.conectado() ? 'success' : 'danger'"
         [icon]="eventos.conectado() ? 'pi pi-wifi' : 'pi pi-ban'"

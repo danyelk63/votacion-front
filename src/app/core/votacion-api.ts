@@ -38,6 +38,11 @@ export class VotacionApi {
     return this.http.delete<ResultadoBorrado>(`${this.base}/votos`);
   }
 
+  /** Vacía todo (votos, logs y archivos) y los nodos arrancan de cero. */
+  vaciarTodo(): Observable<{ mensaje: string }> {
+    return this.http.post<{ mensaje: string }>(`${this.base}/reiniciar`, {});
+  }
+
   resultados(): Observable<Resultados> {
     return this.http.get<Resultados>(`${this.base}/resultados`);
   }

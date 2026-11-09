@@ -113,7 +113,10 @@ export interface Evento {
   datos: Record<string, string>;
 }
 
-export type MensajeWs = { tipo: 'historial'; eventos: Evento[] } | { tipo: 'evento'; evento: Evento };
+export type MensajeWs =
+  | { tipo: 'historial'; eventos: Evento[] }
+  | { tipo: 'evento'; evento: Evento }
+  | { tipo: 'reinicio' };
 
 export interface ArchivoNodo {
   nodoId: number;

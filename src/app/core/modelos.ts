@@ -24,16 +24,6 @@ export interface ResultadoRegistro {
   atendidoPorNodo: number;
 }
 
-export interface ResultadoBorrado {
-  mensaje: string;
-  votosBorrados: number;
-  indiceLog: number;
-  termino: number;
-  lider: number;
-  traza: string;
-  duracionMs: number;
-}
-
 export interface ResultadoCandidato extends Candidato {
   votos: number;
   porcentaje: number;

@@ -73,13 +73,12 @@ export class LogUsuario {
   );
 
   protected readonly totales = computed(() => {
-    const t = { aceptados: 0, rechazados: 0, borrados: 0, operador: 0 };
+    const t = { aceptados: 0, rechazados: 0, operador: 0 };
     for (const f of this.filas()) {
       if (f.accion === 'VOTAR') {
         if (f.resultado === 'ACEPTADO') t.aceptados++;
         else t.rechazados++;
-      } else if (f.accion === 'BORRAR_VOTOS') t.borrados++;
-      else t.operador++;
+      } else if (f.accion !== 'BORRAR_VOTOS') t.operador++;
     }
     return t;
   });

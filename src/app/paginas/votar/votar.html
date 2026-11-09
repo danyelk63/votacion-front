@@ -3,8 +3,6 @@
     <h1>Registrar voto</h1>
     <p>Cada voto viaja por HTTP al gateway y por RMI al clúster, donde el líder lo replica hasta tener mayoría.</p>
   </div>
-  <p-button label="Borrar todos los votos" icon="pi pi-trash" severity="danger" [outlined]="true"
-    [loading]="borrando()" [disabled]="(resultados.valor()?.total ?? 0) === 0" (onClick)="confirmarBorrado()" />
 </div>
 
 <div class="disposicion">

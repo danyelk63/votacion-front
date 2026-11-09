@@ -2,12 +2,30 @@ import { Component, inject, input, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Candidato, ErrorApi, ResultadoRegistro } from '../core/modelos';
-import { VotacionApi } from '../core/votacion-api';
+import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { Candidato, ErrorApi, ResultadoRegistro } from '../../core/modelos';
+import { VotacionApi } from '../../core/votacion-api';
 
 @Component({
   selector: 'app-formulario-voto',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    ButtonModule,
+    CardModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    MessageModule,
+    RadioButtonModule,
+  ],
   templateUrl: './formulario-voto.html',
   styleUrl: './formulario-voto.scss',
 })
@@ -16,6 +34,7 @@ export class FormularioVoto {
 
   private readonly api = inject(VotacionApi);
   private readonly fb = inject(NonNullableFormBuilder);
+  private readonly mensajes = inject(MessageService);
 
   protected readonly form = this.fb.group({
     nombre: ['', [Validators.required, Validators.pattern(/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' ]{3,100}$/)]],
@@ -45,6 +64,12 @@ export class FormularioVoto {
         this.exito.set(r);
         this.form.reset();
         this.enviando.set(false);
+        this.mensajes.add({
+          severity: 'success',
+          summary: 'Voto registrado',
+          detail: `Confirmado por el nodo ${r.lider} (líder) en ${r.duracionMs} ms`,
+          life: 4000,
+        });
       },
       error: (e: HttpErrorResponse) => {
         this.error.set(

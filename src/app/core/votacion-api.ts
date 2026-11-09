@@ -7,6 +7,7 @@ import {
   EstadoCluster,
   EstadoNodo,
   ListadoVotos,
+  ResultadoBorrado,
   ResultadoRegistro,
   Resultados,
   SolicitudVoto,
@@ -29,6 +30,11 @@ export class VotacionApi {
 
   votar(voto: SolicitudVoto): Observable<ResultadoRegistro> {
     return this.http.post<ResultadoRegistro>(`${this.base}/votos`, voto);
+  }
+
+  /** Borra todos los votos del clúster (la orden se replica por consenso). */
+  borrarVotos(): Observable<ResultadoBorrado> {
+    return this.http.delete<ResultadoBorrado>(`${this.base}/votos`);
   }
 
   resultados(): Observable<Resultados> {

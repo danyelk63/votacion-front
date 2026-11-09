@@ -1,0 +1,70 @@
+.disposicion {
+  display: grid;
+  grid-template-columns: minmax(320px, 440px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lateral {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.titulo-resumen {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+
+  i {
+    color: var(--p-primary-color);
+  }
+
+  a {
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+  }
+}
+
+.resumen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+
+  .numero {
+    font-size: 2.25rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.cand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-variant-numeric: tabular-nums;
+
+  .punto {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 3px;
+    background: var(--color);
+  }
+
+  .pct {
+    font-size: 0.85rem;
+  }
+}

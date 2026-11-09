@@ -1,21 +1,45 @@
-<header class="cabecera">
-  <div>
-    <h1>Votación distribuida</h1>
-    <p>Nodos Java comunicados por RMI · consenso Raft · eventos en tiempo real por WebSocket</p>
+<p-toast position="top-right" />
+<p-confirmdialog [style]="{ width: '30rem' }" [breakpoints]="{ '640px': '92vw' }" />
+
+<header class="barra">
+  <div class="contenedor barra-interior">
+    <a class="marca" routerLink="/votar">
+      <span class="logo"><i class="pi pi-box"></i></span>
+      <span>
+        <strong>Votación distribuida</strong>
+        <small>Java RMI · Raft · WebSocket</small>
+      </span>
+    </a>
+
+    <nav class="navegacion" aria-label="Vistas">
+      @for (s of secciones; track s.ruta) {
+        <a [routerLink]="s.ruta" routerLinkActive="activa">
+          <i [class]="s.icono"></i>
+          <span>{{ s.etiqueta }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="acciones">
+      <p-tag
+        [severity]="eventos.conectado() ? 'success' : 'danger'"
+        [icon]="eventos.conectado() ? 'pi pi-wifi' : 'pi pi-ban'"
+        [value]="eventos.conectado() ? 'En vivo · ' + eventos.total() : 'Sin conexión'"
+        pTooltip="Eventos recibidos por WebSocket desde el gateway"
+        tooltipPosition="bottom"
+      />
+      <p-button
+        [icon]="oscuro() ? 'pi pi-sun' : 'pi pi-moon'"
+        [rounded]="true"
+        [text]="true"
+        severity="secondary"
+        (onClick)="alternarTema()"
+        [ariaLabel]="oscuro() ? 'Usar tema claro' : 'Usar tema oscuro'"
+      />
+    </div>
   </div>
-  <span class="conexion" [class.activa]="eventos.conectado()" role="status">
-    <span class="punto"></span>
-    {{ eventos.conectado() ? 'WebSocket conectado' : 'WebSocket desconectado' }} · {{ eventos.total() }} eventos
-  </span>
 </header>
 
-<nav class="pestanas" aria-label="Vistas">
-  <a routerLink="/votar" routerLinkActive="activa">1. Registrar voto</a>
-  <a routerLink="/log-servidor" routerLinkActive="activa">2. Log del servidor</a>
-  <a routerLink="/procesamiento" routerLinkActive="activa">3. Procesamiento del voto</a>
-  <a routerLink="/log-usuario" routerLinkActive="activa">4. Log del usuario</a>
-</nav>
-
-<main>
+<main class="contenedor contenido">
   <router-outlet />
 </main>

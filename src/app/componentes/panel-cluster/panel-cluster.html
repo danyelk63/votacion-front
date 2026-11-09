@@ -1,0 +1,57 @@
+<p-card>
+  <ng-template #title>
+    <div class="titulo">
+      <span><i class="pi pi-sitemap"></i> Clúster (Java RMI + Raft)</span>
+      @if (cluster.error()) {
+        <p-tag severity="danger" icon="pi pi-exclamation-triangle" value="Gateway sin conexión" />
+      } @else if (cluster.valor(); as c) {
+        @if (c.liderActual) {
+          <p-tag severity="success" icon="pi pi-crown" [value]="'Líder: nodo ' + c.liderActual" />
+        } @else {
+          <p-tag severity="warn" icon="pi pi-spin pi-spinner" value="Elección en curso…" />
+        }
+      }
+    </div>
+  </ng-template>
+
+  <div class="nodos">
+    @for (n of cluster.valor()?.nodos ?? []; track n.id) {
+      <div class="nodo" [class.caido]="n.pausado || !n.disponible">
+        <div class="cabeza">
+          <strong>Nodo {{ n.id }}</strong>
+          <p-tag [value]="etiqueta(n)" [severity]="severidad(n)" [icon]="icono(n)" [rounded]="true" />
+        </div>
+        <code class="direccion">{{ n.direccion }}</code>
+
+        @if (n.termino !== undefined) {
+          <dl>
+            <div><dt>Término</dt><dd>{{ n.termino }}</dd></div>
+            <div><dt>Conoce al líder</dt><dd>{{ n.liderId ?? '—' }}</dd></div>
+            <div><dt>Entradas en log</dt><dd>{{ n.longitudLog }}</dd></div>
+            <div><dt>Votos aplicados</dt><dd>{{ n.totalVotos }}</dd></div>
+          </dl>
+          <div class="barra">
+            <small class="muted">Confirmadas {{ n.indiceConfirmado }}/{{ n.longitudLog }}</small>
+            <p-progressbar [value]="progreso(n)" [showValue]="false" class="delgada" />
+          </div>
+          @if (replicacion(n).length && !n.pausado) {
+            <div class="replicas">
+              @for (r of replicacion(n); track r.id) {
+                <p-tag [severity]="r.pct === 100 ? 'success' : 'warn'" [value]="'→ nodo ' + r.id + ': ' + r.indice"
+                  [pTooltip]="'Entradas del log del líder que ya tiene el nodo ' + r.id" tooltipPosition="top" />
+              }
+            </div>
+          }
+          <p-button [label]="n.pausado ? 'Reanudar nodo' : 'Tumbar nodo'"
+            [icon]="n.pausado ? 'pi pi-play' : 'pi pi-power-off'"
+            [severity]="n.pausado ? 'success' : 'danger'" [outlined]="true" size="small" fluid
+            [loading]="ocupado() === n.id" (onClick)="alternar(n)" />
+        } @else {
+          <p class="muted nota">El proceso no responde. Vuelva a iniciarlo para que se reincorpore.</p>
+        }
+      </div>
+    } @empty {
+      <p class="muted">Consultando el estado del clúster…</p>
+    }
+  </div>
+</p-card>

@@ -1,0 +1,82 @@
+<p-card>
+  <ng-template #title>
+    <span class="titulo"><i class="pi pi-check-square"></i> Registrar voto</span>
+  </ng-template>
+  <ng-template #subtitle>El voto se replica en la mayoría de nodos antes de confirmarse.</ng-template>
+
+  <form [formGroup]="form" (ngSubmit)="enviar()" novalidate class="formulario">
+    <div class="campo">
+      <label for="nombre">Nombre completo</label>
+      <p-iconfield>
+        <p-inputicon class="pi pi-user" />
+        <input pInputText id="nombre" formControlName="nombre" autocomplete="name" placeholder="Ej. Ana María Pérez"
+          [invalid]="invalido('nombre')" fluid />
+      </p-iconfield>
+      @if (invalido('nombre')) {
+        <p-message severity="error" size="small" variant="simple">Ingrese entre 3 y 100 letras.</p-message>
+      }
+    </div>
+
+    <div class="campo">
+      <label for="cedula">Cédula de ciudadanía</label>
+      <p-iconfield>
+        <p-inputicon class="pi pi-id-card" />
+        <input pInputText id="cedula" formControlName="cedula" inputmode="numeric" placeholder="Solo números, sin puntos"
+          [invalid]="invalido('cedula')" fluid />
+      </p-iconfield>
+      @if (invalido('cedula')) {
+        <p-message severity="error" size="small" variant="simple">La cédula debe tener entre 6 y 10 dígitos.</p-message>
+      }
+    </div>
+
+    <fieldset class="candidatos">
+      <legend>Escoja un candidato</legend>
+      @for (c of candidatos(); track c.id) {
+        <label class="candidato" [class.seleccionado]="form.controls.candidato.value === c.id"
+          [style.--color]="'var(--cand-' + c.id + ')'">
+          <p-radiobutton formControlName="candidato" [value]="c.id" [inputId]="'cand-' + c.id" />
+          <span class="avatar">{{ c.nombre.charAt(0) }}</span>
+          <span class="texto">
+            <strong>{{ c.nombre }}</strong>
+            <small>{{ c.partido }}</small>
+          </span>
+        </label>
+      }
+      @if (invalido('candidato')) {
+        <p-message severity="error" size="small" variant="simple">Debe escoger un candidato.</p-message>
+      }
+    </fieldset>
+
+    <p-button type="submit" label="Votar" icon="pi pi-send" [loading]="enviando()"
+      [loadingIcon]="'pi pi-spin pi-spinner'" fluid size="large" />
+
+    @if (exito(); as r) {
+      <p-message severity="success" icon="pi pi-check-circle">
+        <div class="aviso">
+          <strong>¡Voto registrado!</strong>
+          <span>
+            Lo confirmó el <b>nodo {{ r.lider }}</b> (líder, término {{ r.termino }}) como entrada
+            <b>#{{ r.indiceLog }}</b> del log, replicada en la mayoría del clúster.
+            @if (r.reenviadoPor) {
+              El gateway llamó al nodo {{ r.reenviadoPor }}, que lo reenvió al líder por RMI.
+            }
+          </span>
+          <span class="muted">{{ r.duracionMs }} ms · traza <code>{{ r.traza }}</code></span>
+          <a [routerLink]="['/procesamiento']" [queryParams]="{ traza: r.traza }">
+            Ver cómo se procesó este voto <i class="pi pi-arrow-right"></i>
+          </a>
+        </div>
+      </p-message>
+    }
+    @if (error(); as e) {
+      <p-message severity="error" icon="pi pi-times-circle">
+        <div class="aviso">
+          <strong>{{ e.error }}</strong>
+          @for (d of e.detalles ?? []; track d) {
+            <span>{{ d }}</span>
+          }
+        </div>
+      </p-message>
+    }
+  </form>
+</p-card>

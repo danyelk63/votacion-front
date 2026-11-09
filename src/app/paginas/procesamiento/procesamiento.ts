@@ -1,59 +1,74 @@
 import { Component, computed, effect, inject, input, linkedSignal, signal, untracked } from '@angular/core';
 import { Router } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { TableModule } from 'primeng/table';
+import { TabsModule } from 'primeng/tabs';
+import { TagModule } from 'primeng/tag';
+import { TimelineModule } from 'primeng/timeline';
 import { EventosService } from '../../core/eventos';
 import { Archivos, Evento } from '../../core/modelos';
 import { VotacionApi } from '../../core/votacion-api';
+import { INFO_CATEGORIA } from '../../compartido/categorias';
 import { HoraPipe } from '../../compartido/hora';
-import { NOMBRE_ROL, Origen } from '../../compartido/origen';
+import { NOMBRE_ROL, Origen, SEVERIDAD_ROL } from '../../compartido/origen';
 
 interface Fase {
   titulo: string;
+  icono: string;
   descripcion: string;
   etapas: string[];
 }
 
-/** Las fases por las que pasa un voto, de la llegada al archivo. */
+/** Las fases por las que pasa una petición, de la llegada al archivo. */
 const FASES: Fase[] = [
   {
-    titulo: '1. Llega al servidor',
-    descripcion: 'El navegador envía POST /api/votos (HTTP/JSON) al gateway, que le asigna un id de traza.',
+    titulo: 'Llega al servidor',
+    icono: 'pi pi-globe',
+    descripcion: 'El navegador envía la petición HTTP/JSON al gateway, que le asigna un id de traza.',
     etapas: ['RECIBIDO_HTTP'],
   },
   {
-    titulo: '2. Viaja por RMI',
-    descripcion:
-      'El gateway invoca registrarVoto() en un nodo. Si ese nodo no es el líder, reenvía la invocación al líder, también por RMI.',
+    titulo: 'Viaja por RMI',
+    icono: 'pi pi-arrow-right-arrow-left',
+    descripcion: 'El gateway invoca el método remoto en un nodo; si no es el líder, este la reenvía al líder por RMI.',
     etapas: ['LLAMADA_RMI', 'FAILOVER', 'RECIBIDO_RMI', 'REENVIO_LIDER', 'SIN_LIDER', 'LIDER_INACCESIBLE'],
   },
   {
-    titulo: '3. Se procesa en el líder',
-    descripcion: 'Valida los datos, verifica que la cédula no haya votado y agrega el voto al log de Raft.',
+    titulo: 'Se procesa en el líder',
+    icono: 'pi pi-cog',
+    descripcion: 'Valida los datos, verifica que la cédula no haya votado y lo agrega al log de Raft.',
     etapas: ['VALIDACION', 'VERIFICACION', 'ANEXADO_LOG', 'RECHAZADO'],
   },
   {
-    titulo: '4. Se replica',
-    descripcion: 'El líder envía la entrada a cada seguidor (anexarEntradas por RMI) y estos confirman que la tienen.',
+    titulo: 'Se replica',
+    icono: 'pi pi-clone',
+    descripcion: 'El líder envía la entrada a cada seguidor (anexarEntradas por RMI) y estos confirman.',
     etapas: ['ENVIO', 'ENTRADA_RECIBIDA', 'ACK'],
   },
   {
-    titulo: '5. Consenso por mayoría',
-    descripcion: 'Cuando la mayoría de nodos tiene la entrada, queda CONFIRMADA: ya no se puede perder.',
+    titulo: 'Consenso por mayoría',
+    icono: 'pi pi-users',
+    descripcion: 'Con la mayoría de nodos la entrada queda CONFIRMADA: ya no se puede perder.',
     etapas: ['CONFIRMADO'],
   },
   {
-    titulo: '6. Se aplica en memoria',
-    descripcion: 'Cada nodo suma el voto a su registro electoral en memoria, en el mismo orden.',
-    etapas: ['APLICADO'],
+    titulo: 'Se aplica en memoria',
+    icono: 'pi pi-microchip',
+    descripcion: 'Cada nodo actualiza su registro electoral en memoria, en el mismo orden.',
+    etapas: ['APLICADO', 'BORRADO'],
   },
   {
-    titulo: '7. Se guarda en archivo',
-    descripcion: 'Cada nodo escribe una línea en su archivo de texto datos/nodo-N/votos.txt.',
-    etapas: ['GUARDADO_ARCHIVO', 'ERROR_ARCHIVO'],
+    titulo: 'Se guarda en archivo',
+    icono: 'pi pi-save',
+    descripcion: 'Cada nodo escribe (o vacía) su archivo de texto datos/nodo-N/votos.txt.',
+    etapas: ['GUARDADO_ARCHIVO', 'ARCHIVO_REINICIADO', 'ERROR_ARCHIVO'],
   },
   {
-    titulo: '8. Respuesta al usuario',
-    descripcion: 'El líder responde la llamada RMI, el gateway responde HTTP y registra la acción en el log del usuario.',
-    etapas: ['RESPUESTA', 'RESPUESTA_HTTP', 'VOTAR'],
+    titulo: 'Respuesta al usuario',
+    icono: 'pi pi-reply',
+    descripcion: 'El líder responde por RMI, el gateway responde HTTP y escribe el log del usuario.',
+    etapas: ['RESPUESTA', 'RESPUESTA_HTTP', 'VOTAR', 'BORRAR_VOTOS'],
   },
 ];
 
@@ -62,19 +77,19 @@ const ETAPAS_ERROR = new Set(['RECHAZADO', 'SIN_LIDER', 'LIDER_INACCESIBLE', 'ER
 interface ResumenTraza {
   traza: string;
   hora: string;
+  accion: string;
   nombre: string;
   cedula: string;
   estado: string;
 }
 
 /**
- * Vista 3: qué hace el servidor con los datos de un voto. Reconstruye, a partir
- * de los eventos en tiempo real, el recorrido completo de un voto (identificado
- * por su "traza") por el gateway y todos los nodos.
+ * Vista: qué hace el servidor con los datos. Reconstruye, con los eventos en
+ * tiempo real, el recorrido de una petición (su "traza") por todo el sistema.
  */
 @Component({
   selector: 'app-procesamiento',
-  imports: [HoraPipe, Origen],
+  imports: [ButtonModule, CardModule, TableModule, TabsModule, TagModule, TimelineModule, HoraPipe, Origen],
   templateUrl: './procesamiento.html',
   styleUrl: './procesamiento.scss',
 })
@@ -86,22 +101,23 @@ export class Procesamiento {
   private readonly api = inject(VotacionApi);
   private readonly router = inject(Router);
 
-  protected readonly fases = FASES;
+  protected readonly info = INFO_CATEGORIA;
+  protected readonly severidadRol = SEVERIDAD_ROL;
 
-  /** Resumen de todos los votos vistos (uno por traza), el más reciente primero. */
   protected readonly trazas = computed<ResumenTraza[]>(() => {
     const mapa = new Map<string, ResumenTraza>();
     for (const e of this.servicio.eventos()) {
-      if (!e.traza || e.traza.startsWith('t-')) continue;
+      if (!e.traza) continue;
       if (e.etapa === 'RECIBIDO_HTTP') {
         mapa.set(e.traza, {
           traza: e.traza,
           hora: e.hora,
+          accion: e.datos['accion'] ?? 'VOTAR',
           nombre: e.datos['nombre'] ?? '',
           cedula: e.datos['cedula'] ?? '',
           estado: 'EN PROCESO',
         });
-      } else if (e.etapa === 'VOTAR' && mapa.has(e.traza)) {
+      } else if (e.categoria === 'USUARIO' && mapa.has(e.traza)) {
         mapa.get(e.traza)!.estado = e.datos['resultado'] ?? 'FINALIZADO';
       }
     }
@@ -120,25 +136,31 @@ export class Procesamiento {
   private readonly inicio = computed(() => (this.eventos()[0] ? Date.parse(this.eventos()[0].hora) : 0));
 
   protected readonly estadoFases = computed(() =>
-    FASES.map((f) => {
+    FASES.map((f, i) => {
       const evs = this.eventos().filter((e) => f.etapas.includes(e.etapa ?? ''));
       const error = evs.some((e) => ETAPAS_ERROR.has(e.etapa ?? ''));
-      return { fase: f, eventos: evs, estado: error ? 'error' : evs.length ? 'ok' : 'pendiente' };
+      return { numero: i + 1, fase: f, eventos: evs, estado: error ? 'error' : evs.length ? 'ok' : 'pendiente' };
     }),
   );
 
-  /** Qué hizo cada nodo con este voto. */
+  protected readonly duracionTotal = computed(() => {
+    const evs = this.eventos();
+    return evs.length > 1 ? Date.parse(evs[evs.length - 1].hora) - Date.parse(evs[0].hora) : 0;
+  });
+
+  /** Qué hizo cada nodo con esta petición. */
   protected readonly porNodo = computed(() => {
-    const nodos = new Map<number, { id: number; rol: string; recibio?: Evento; aplico?: Evento; guardo?: Evento }>();
+    const nodos = new Map<number, { id: number; rol: string; rolId: string; recibio?: Evento; aplico?: Evento; guardo?: Evento }>();
     for (const e of this.eventos()) {
       if (e.nodoId === null) continue;
-      const n = nodos.get(e.nodoId) ?? { id: e.nodoId, rol: NOMBRE_ROL[e.rol] ?? e.rol };
+      const n = nodos.get(e.nodoId) ?? { id: e.nodoId, rol: NOMBRE_ROL[e.rol] ?? e.rol, rolId: e.rol };
       if (e.etapa === 'ANEXADO_LOG' || e.etapa === 'ENTRADA_RECIBIDA') {
         n.recibio = e;
         n.rol = NOMBRE_ROL[e.rol] ?? e.rol;
+        n.rolId = e.rol;
       }
-      if (e.etapa === 'APLICADO') n.aplico = e;
-      if (e.etapa === 'GUARDADO_ARCHIVO') n.guardo = e;
+      if (e.etapa === 'APLICADO' || e.etapa === 'BORRADO') n.aplico = e;
+      if (e.etapa === 'GUARDADO_ARCHIVO' || e.etapa === 'ARCHIVO_REINICIADO') n.guardo = e;
       nodos.set(e.nodoId, n);
     }
     return [...nodos.values()].sort((a, b) => a.id - b.id);
@@ -147,14 +169,18 @@ export class Procesamiento {
   // --------------------------------------------------------------- archivos de los nodos
 
   protected readonly archivos = signal<Archivos | null>(null);
-  private readonly guardados = computed(
-    () => this.servicio.eventos().filter((e) => e.etapa === 'GUARDADO_ARCHIVO' || e.etapa === 'INICIO').length,
+  protected readonly pestana = signal<string | number | undefined>('1');
+  private readonly escrituras = computed(
+    () =>
+      this.servicio
+        .eventos()
+        .filter((e) => e.etapa === 'GUARDADO_ARCHIVO' || e.etapa === 'ARCHIVO_REINICIADO' || e.etapa === 'INICIO').length,
   );
 
   constructor() {
     // Relee los archivos cada vez que algún nodo escribe en el suyo.
     effect(() => {
-      this.guardados();
+      this.escrituras();
       untracked(() => this.cargarArchivos());
     });
   }
@@ -178,12 +204,25 @@ export class Procesamiento {
 
   protected resaltada(linea: string): boolean {
     const t = this.seleccion();
-    return !!t && linea.endsWith(' | ' + t);
+    return !!t && (linea.endsWith(' | ' + t) || linea.includes('traza ' + t + ')'));
   }
 
-  protected claseEstado(estado: string): string {
-    if (estado === 'ACEPTADO') return 'ok';
-    if (estado === 'EN PROCESO') return 'proceso';
-    return 'error';
+  protected severidadEstado(estado: string) {
+    if (estado === 'ACEPTADO' || estado === 'OK') return 'success' as const;
+    if (estado === 'EN PROCESO') return 'warn' as const;
+    return 'danger' as const;
+  }
+
+  /** Texto corto para la etiqueta de estado. */
+  protected etiquetaEstado(estado: string): string {
+    if (estado === 'RECHAZADO_CEDULA_DUPLICADA') return 'DUPLICADO';
+    if (estado === 'RECHAZADO_DATOS_INVALIDOS') return 'INVÁLIDO';
+    if (estado.startsWith('RECHAZADO')) return 'RECHAZADO';
+    if (estado.startsWith('ERROR')) return 'ERROR';
+    return estado;
+  }
+
+  protected titulo(t: ResumenTraza): string {
+    return t.accion === 'BORRAR_VOTOS' ? 'Borrar todos los votos' : t.nombre || '(sin nombre)';
   }
 }

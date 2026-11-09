@@ -1,140 +1,186 @@
+<div class="encabezado-pagina">
+  <div>
+    <h1>Procesamiento del voto</h1>
+    <p>
+      Qué hace el servidor con los datos: cómo <b>llegan</b>, cómo se <b>procesan</b> y cómo se <b>guardan</b>. Cada
+      petición lleva una <b>traza</b> que la identifica en el gateway y en todos los nodos.
+    </p>
+  </div>
+</div>
+
 <div class="disposicion">
-  <aside class="tarjeta lista">
-    <h2>Votos recibidos</h2>
-    <p class="nota">Cada voto lleva un id de <b>traza</b> que lo sigue por todo el sistema.</p>
-    @for (t of trazas(); track t.traza) {
-      <button type="button" class="item" [class.activo]="t.traza === seleccion()" (click)="elegir(t.traza)">
-        <span class="mono hora">{{ t.hora | hora }}</span>
-        <strong>{{ t.nombre || '(sin nombre)' }}</strong>
-        <span class="mono">CC {{ t.cedula }}</span>
-        <span class="estado" [class]="'estado ' + claseEstado(t.estado)">{{ t.estado }}</span>
-      </button>
-    } @empty {
-      <p class="nota">Aún no hay votos. Registre uno en la vista 1.</p>
-    }
-  </aside>
+  <p-card class="lista">
+    <ng-template #title>Peticiones</ng-template>
+    <div class="items">
+      @for (t of trazas(); track t.traza) {
+        <button type="button" class="item" [class.activo]="t.traza === seleccion()" (click)="elegir(t.traza)">
+          <span class="fila">
+            <i [class]="t.accion === 'BORRAR_VOTOS' ? 'pi pi-trash' : 'pi pi-check-square'"></i>
+            <strong>{{ titulo(t) }}</strong>
+          </span>
+          @if (t.cedula) {
+            <code class="muted">CC {{ t.cedula }}</code>
+          }
+          <span class="fila entre">
+            <code class="muted">{{ t.hora | hora }}</code>
+            <p-tag [value]="etiquetaEstado(t.estado)" [severity]="severidadEstado(t.estado)" class="tag-mini" />
+          </span>
+        </button>
+      } @empty {
+        <p class="muted">Aún no hay peticiones. Registre un voto en la vista Registrar voto.</p>
+      }
+    </div>
+  </p-card>
 
   <div class="contenido">
     @if (seleccion(); as t) {
-      <section class="tarjeta">
-        <div class="encabezado">
-          <h2>Recorrido del voto <span class="mono">{{ t }}</span></h2>
+      <p-card>
+        <ng-template #title>
+          <div class="titulo">
+            <span>Recorrido de la traza <code>{{ t }}</code></span>
+            @if (resumen(); as r) {
+              <p-tag [value]="etiquetaEstado(r.estado)" [severity]="severidadEstado(r.estado)" />
+            }
+          </div>
+        </ng-template>
+        <ng-template #subtitle>
           @if (resumen(); as r) {
-            <span class="estado" [class]="'estado ' + claseEstado(r.estado)">{{ r.estado }}</span>
+            {{ titulo(r) }}{{ r.cedula ? ' · CC ' + r.cedula : '' }} · recibido {{ r.hora | hora: true }} ·
+            {{ eventos().length }} eventos en {{ duracionTotal() }} ms
           }
-        </div>
-        @if (resumen(); as r) {
-          <p class="nota">{{ r.nombre }} · CC {{ r.cedula }} · recibido a las {{ r.hora | hora: true }}</p>
-        }
+        </ng-template>
 
         <ol class="fases">
-          @for (f of estadoFases(); track f.fase.titulo) {
+          @for (f of estadoFases(); track f.numero) {
             <li [class]="f.estado">
-              <span class="marca" aria-hidden="true">{{ f.estado === 'ok' ? '✓' : f.estado === 'error' ? '✕' : '…' }}</span>
+              <span class="marca">
+                @if (f.estado === 'ok') {
+                  <i class="pi pi-check"></i>
+                } @else if (f.estado === 'error') {
+                  <i class="pi pi-times"></i>
+                } @else {
+                  <i [class]="f.fase.icono"></i>
+                }
+              </span>
               <div>
-                <strong>{{ f.fase.titulo }}</strong>
+                <strong>{{ f.numero }}. {{ f.fase.titulo }}</strong>
                 <p>{{ f.fase.descripcion }}</p>
                 @if (f.eventos.length) {
-                  <small class="mono">{{ f.eventos[0].hora | hora }} · {{ f.eventos.length }} evento(s)</small>
+                  <code class="muted">{{ f.eventos[0].hora | hora }} · {{ f.eventos.length }} evento(s)</code>
                 }
               </div>
             </li>
           }
         </ol>
-      </section>
+      </p-card>
 
-      <section class="tarjeta">
-        <h2>Qué hizo cada nodo con este voto</h2>
-        <div class="tabla">
-          <table>
-            <thead>
-              <tr>
-                <th>Nodo</th>
-                <th>Tipo de nodo</th>
-                <th>Lo recibió en su log</th>
-                <th>Lo aplicó en memoria</th>
-                <th>Lo guardó en archivo</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (n of porNodo(); track n.id) {
-                <tr>
-                  <td><b>Nodo {{ n.id }}</b></td>
-                  <td>{{ n.rol }}</td>
-                  <td class="mono">{{ n.recibio ? (n.recibio.hora | hora) : '—' }}</td>
-                  <td class="mono">{{ n.aplico ? (n.aplico.hora | hora) : '—' }}</td>
-                  <td class="mono">
-                    @if (n.guardo) {
-                      {{ n.guardo.hora | hora }} · registro {{ n.guardo.datos['registro'] }}
-                    } @else {
-                      —
-                    }
-                  </td>
-                </tr>
-              } @empty {
-                <tr><td colspan="5" class="nota">Ningún nodo ha procesado este voto todavía.</td></tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <p-card>
+        <ng-template #title>Qué hizo cada nodo</ng-template>
+        <p-table [value]="porNodo()" size="small" [scrollable]="true">
+          <ng-template #header>
+            <tr>
+              <th>Nodo</th>
+              <th>Tipo de nodo</th>
+              <th>Lo recibió en su log</th>
+              <th>Lo aplicó en memoria</th>
+              <th>Lo guardó en archivo</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-n>
+            <tr>
+              <td><b>Nodo {{ n.id }}</b></td>
+              <td><p-tag [value]="n.rol" [severity]="severidadRol[n.rolId]" [rounded]="true" /></td>
+              <td><code>{{ n.recibio ? (n.recibio.hora | hora) : '—' }}</code></td>
+              <td><code>{{ n.aplico ? (n.aplico.hora | hora) : '—' }}</code></td>
+              <td>
+                @if (n.guardo) {
+                  <code>{{ n.guardo.hora | hora }}</code>
+                  @if (n.guardo.datos['registro']) {
+                    <span class="muted"> · registro {{ n.guardo.datos['registro'] }}</span>
+                  }
+                } @else {
+                  —
+                }
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr><td colspan="5" class="muted">Ningún nodo ha procesado esta petición todavía.</td></tr>
+          </ng-template>
+        </p-table>
+      </p-card>
 
-      <section class="tarjeta">
-        <h2>Línea de tiempo completa ({{ eventos().length }} eventos)</h2>
-        <ol class="linea">
-          @for (e of eventos(); track e.secuencia) {
-            <li [class.error]="e.etapa === 'RECHAZADO'">
-              <div class="tiempo mono">
-                <span>{{ e.hora | hora }}</span>
-                <small>{{ desdeInicio(e) }}</small>
+      <p-card>
+        <ng-template #title>Línea de tiempo</ng-template>
+        <p-timeline [value]="eventos()" class="linea">
+          <ng-template #opposite let-e>
+            <div class="tiempo">
+              <code>{{ e.hora | hora }}</code>
+              <small class="muted">{{ desdeInicio(e) }}</small>
+            </div>
+          </ng-template>
+          <ng-template #marker let-e>
+            <span class="marcador" [class]="'marcador rol-' + e.rol.toLowerCase()">
+              <i [class]="info[e.categoria].icono"></i>
+            </span>
+          </ng-template>
+          <ng-template #content let-e>
+            <div class="evento">
+              <div class="quien">
+                <app-origen [evento]="e" />
+                <code class="muted">{{ e.etapa }}</code>
               </div>
-              <div class="cuerpo">
-                <div class="quien">
-                  <app-origen [evento]="e" />
-                  <span class="chip-cat" [class]="'chip-cat cat-' + e.categoria.toLowerCase()">{{ e.categoria }}</span>
-                  <small class="mono">{{ e.etapa }}</small>
+              <p [class.error]="e.etapa === 'RECHAZADO'">{{ e.mensaje }}</p>
+              @if (datos(e).length) {
+                <div class="datos">
+                  @for (d of datos(e); track d[0]) {
+                    <code>{{ d[0] }}: {{ d[1] }}</code>
+                  }
                 </div>
-                <p>{{ e.mensaje }}</p>
-                @if (datos(e).length) {
-                  <div class="datos mono">
-                    @for (d of datos(e); track d[0]) {
-                      <span>{{ d[0] }}: {{ d[1] }}</span>
-                    }
-                  </div>
-                }
-              </div>
-            </li>
-          }
-        </ol>
-      </section>
-    }
-
-    <section class="tarjeta">
-      <div class="encabezado">
-        <h2>Cómo se guarda: archivos de texto en cada servidor</h2>
-        <button type="button" class="boton" (click)="cargarArchivos()">Recargar</button>
-      </div>
-      <p class="nota">
-        No hay base de datos: cada nodo agrega una línea a su propio <code>votos.txt</code> cuando el voto queda
-        confirmado. Los 3 archivos deben ser iguales, porque los votos están replicados. Se lee por RMI con
-        <code>leerArchivo()</code>. Resaltado: el voto seleccionado.
-      </p>
-      <div class="archivos">
-        @for (a of archivos()?.nodos ?? []; track a.nodoId) {
-          <div class="archivo">
-            <div class="ruta">
-              <b>Nodo {{ a.nodoId }}</b>
-              @if (a.disponible) {
-                <span class="mono">{{ a.ruta }}</span>
-              } @else {
-                <span class="error-txt">no responde</span>
               }
             </div>
-            <pre class="mono">@for (l of a.lineas ?? []; track $index) {<span [class.resaltada]="resaltada(l)">{{ l }}
+          </ng-template>
+        </p-timeline>
+      </p-card>
+    }
+
+    <p-card>
+      <ng-template #title>
+        <div class="titulo">
+          <span>Cómo se guarda: archivos de texto en cada servidor</span>
+          <p-button icon="pi pi-refresh" label="Recargar" size="small" severity="secondary" [outlined]="true"
+            (onClick)="cargarArchivos()" />
+        </div>
+      </ng-template>
+      <ng-template #subtitle>
+        No hay base de datos: cada nodo agrega una línea a su <code>votos.txt</code> cuando el voto queda confirmado. Los
+        archivos son iguales porque los votos están replicados. Se leen por RMI con <code>leerArchivo()</code>.
+      </ng-template>
+      <p-tabs [value]="pestana()" (valueChange)="pestana.set($event)">
+        <p-tablist>
+          @for (a of archivos()?.nodos ?? []; track a.nodoId) {
+            <p-tab [value]="'' + a.nodoId">
+              <i class="pi pi-file"></i> Nodo {{ a.nodoId }}
+              @if (!a.disponible) {
+                <p-tag severity="danger" value="caído" class="tag-mini" />
+              }
+            </p-tab>
+          }
+        </p-tablist>
+        <p-tabpanels>
+          @for (a of archivos()?.nodos ?? []; track a.nodoId) {
+            <p-tabpanel [value]="'' + a.nodoId">
+              @if (a.disponible) {
+                <p class="ruta"><i class="pi pi-folder-open"></i> <code>{{ a.ruta }}</code> · {{ a.totalLineas }} líneas</p>
+                <pre class="consola-pre">@for (l of a.lineas ?? []; track $index) {<span [class.resaltada]="resaltada(l)">{{ l }}
 </span>}</pre>
-          </div>
-        }
-      </div>
-    </section>
+              } @else {
+                <p class="muted">El nodo no responde por RMI.</p>
+              }
+            </p-tabpanel>
+          }
+        </p-tabpanels>
+      </p-tabs>
+    </p-card>
   </div>
 </div>

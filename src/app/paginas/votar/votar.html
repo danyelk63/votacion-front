@@ -1,0 +1,39 @@
+<div class="encabezado-pagina">
+  <div>
+    <h1>Registrar voto</h1>
+    <p>Cada voto viaja por HTTP al gateway y por RMI al clúster, donde el líder lo replica hasta tener mayoría.</p>
+  </div>
+  <p-button label="Borrar todos los votos" icon="pi pi-trash" severity="danger" [outlined]="true"
+    [loading]="borrando()" [disabled]="(resultados.valor()?.total ?? 0) === 0" (onClick)="confirmarBorrado()" />
+</div>
+
+<div class="disposicion">
+  <app-formulario-voto [candidatos]="candidatos()" />
+
+  <div class="lateral">
+    <p-card>
+      <ng-template #title>
+        <div class="titulo-resumen">
+          <span><i class="pi pi-chart-bar"></i> Conteo actual</span>
+          <a routerLink="/conteo">Ver detalle <i class="pi pi-arrow-right"></i></a>
+        </div>
+      </ng-template>
+      <div class="resumen">
+        <div class="total">
+          <span class="numero">{{ resultados.valor()?.total ?? 0 }}</span>
+          <span class="muted">votos</span>
+        </div>
+        @for (c of resultados.valor()?.candidatos ?? []; track c.id) {
+          <div class="cand" [style.--color]="'var(--cand-' + c.id + ')'">
+            <span class="punto"></span>
+            <span class="nombre">{{ c.nombre }}</span>
+            <strong>{{ c.votos }}</strong>
+            <span class="muted pct">{{ c.porcentaje }}%</span>
+          </div>
+        }
+      </div>
+    </p-card>
+
+    <app-panel-cluster />
+  </div>
+</div>

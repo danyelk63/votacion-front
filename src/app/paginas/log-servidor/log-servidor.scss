@@ -1,125 +1,62 @@
-:host {
-  display: grid;
-  gap: 1rem;
-}
-
-h2 {
-  margin: 0 0 0.35rem;
-}
-
-.titulo p {
-  margin: 0;
-}
-
 .controles {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
   align-items: center;
-  margin-top: 1rem;
-
-  label {
-    display: inline-flex;
-    gap: 0.4rem;
-    align-items: center;
-    font-size: 0.9rem;
-  }
+  margin-bottom: 1rem;
 
   .buscar {
-    flex: 1 1 220px;
+    flex: 1 1 240px;
   }
 }
 
-.categorias {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 0.75rem;
-
-  .cat {
-    display: inline-flex;
-    gap: 0.4rem;
-    align-items: center;
-    opacity: 0.55;
-
-    &.activo {
-      opacity: 1;
-    }
-  }
+:host ::ng-deep .multi {
+  min-width: 15rem;
 }
 
-.consola {
-  border-radius: 12px;
-  background: var(--consola);
-  color: var(--consola-texto);
-  overflow: auto;
-  max-height: 70vh;
-  font-size: 0.85rem;
-
-  --texto-suave: #8d97a8;
+.opcion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
 }
 
-.fila {
+.cat {
   display: grid;
-  grid-template-columns: 3.5rem 7.5rem 15rem 11rem minmax(18rem, 1fr);
-  gap: 0.75rem;
-  padding: 0.4rem 0.9rem;
-  border-bottom: 1px solid #1f2736;
-  cursor: pointer;
-  align-items: start;
-  min-width: 860px;
-
-  &:hover,
-  &.abierta {
-    background: #172031;
-  }
-
-  &.cabeza {
-    position: sticky;
-    top: 0;
-    background: #0b0f18;
-    color: #8d97a8;
-    font-weight: 600;
-    cursor: default;
-    z-index: 1;
-  }
-}
-
-.sec {
-  color: #6c7689;
-}
-
-.hora {
-  color: #9ecbff;
+  justify-items: start;
+  gap: 0.2rem;
 }
 
 .etapa {
-  display: block;
-  margin-top: 0.15rem;
-  color: #a9b3c4;
-  font-size: 0.75rem;
-}
-
-.mensaje {
-  line-height: 1.4;
+  font-size: 0.72rem;
+  color: var(--p-text-muted-color);
 }
 
 .traza {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   margin-left: 0.5rem;
-  color: #c9a7ff;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .detalle {
-  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.2rem;
   padding: 0.5rem 0.75rem;
-  border-left: 3px solid #3a4a66;
-  color: #b9c3d4;
-  font-size: 0.78rem;
+  border-left: 3px solid var(--p-primary-color);
+  background: var(--p-content-hover-background);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.8rem;
   overflow-wrap: anywhere;
 }
 
 .vacio {
-  padding: 1.5rem;
-  color: #8d97a8;
+  padding: 2rem;
+  text-align: center;
+}
+
+:host ::ng-deep .tabla-log td {
+  vertical-align: top;
 }

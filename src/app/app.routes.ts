@@ -8,6 +8,11 @@ export const routes: Routes = [
     loadComponent: () => import('./paginas/votar/votar').then((m) => m.Votar),
   },
   {
+    path: 'conteo',
+    title: 'Conteo de votos',
+    loadComponent: () => import('./paginas/conteo/conteo').then((m) => m.Conteo),
+  },
+  {
     path: 'log-servidor',
     title: 'Log del servidor',
     loadComponent: () => import('./paginas/log-servidor/log-servidor').then((m) => m.LogServidor),

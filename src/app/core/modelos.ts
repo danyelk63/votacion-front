@@ -24,6 +24,16 @@ export interface ResultadoRegistro {
   atendidoPorNodo: number;
 }
 
+export interface ResultadoBorrado {
+  mensaje: string;
+  votosBorrados: number;
+  indiceLog: number;
+  termino: number;
+  lider: number;
+  traza: string;
+  duracionMs: number;
+}
+
 export interface ResultadoCandidato extends Candidato {
   votos: number;
   porcentaje: number;
@@ -54,6 +64,7 @@ export interface ListadoVotos {
 
 export type Rol = 'LIDER' | 'SEGUIDOR' | 'CANDIDATO' | 'CAIDO';
 
+
 export interface EstadoNodo {
   id: number;
   direccion: string;
@@ -73,6 +84,7 @@ export interface EstadoNodo {
 export interface EstadoCluster {
   liderActual: number | null;
   nodos: EstadoNodo[];
+  clientesWebSocket?: number;
 }
 
 export interface ErrorApi {

@@ -1,89 +1,92 @@
-:host {
-  display: block;
-}
-
-h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1.15rem;
-}
-
 .disposicion {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: 280px minmax(0, 1fr);
   gap: 1rem;
   align-items: start;
 
-  @media (max-width: 800px) {
-    grid-template-columns: 1fr;
+  @media (max-width: 900px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  > * {
+    min-width: 0;
   }
 }
 
-.lista {
+:host ::ng-deep .lista {
+  position: sticky;
+  top: 5rem;
+}
+
+.items {
   display: grid;
   gap: 0.5rem;
-  position: sticky;
-  top: 1rem;
-  max-height: calc(100vh - 2rem);
+  max-height: calc(100vh - 12rem);
   overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.25rem;
 
-  @media (max-width: 800px) {
-    position: static;
-    max-height: 18rem;
+  @media (max-width: 900px) {
+    max-height: 16rem;
   }
 }
 
 .item {
   display: grid;
-  gap: 0.1rem;
+  width: 100%;
+  min-width: 0;
+  gap: 0.2rem;
   text-align: left;
   font: inherit;
   font-size: 0.85rem;
-  padding: 0.6rem 0.7rem;
-  border: 1px solid var(--borde);
-  border-radius: 8px;
-  background: var(--fondo);
-  color: var(--texto);
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 10px;
+  background: var(--p-content-background);
+  color: var(--p-text-color);
   cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
 
-  &.activo {
-    border-color: var(--primario);
-    background: var(--primario-suave);
+  &:hover {
+    background: var(--p-content-hover-background);
   }
 
-  .hora {
-    color: var(--texto-suave);
-    font-size: 0.78rem;
+  &.activo {
+    border-color: var(--p-primary-color);
+    background: var(--p-highlight-background);
+  }
+
+  .fila {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    &.entre {
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 }
 
-.estado {
-  justify-self: start;
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 0.05rem 0.45rem;
-  border-radius: 999px;
-
-  &.ok {
-    background: var(--exito-suave);
-    color: var(--exito);
-  }
-  &.proceso {
-    background: var(--advertencia-suave);
-    color: var(--advertencia);
-  }
-  &.error {
-    background: var(--peligro-suave);
-    color: var(--peligro);
-  }
+:host ::ng-deep .tag-mini {
+  font-size: 0.65rem;
+  padding: 0.05rem 0.4rem;
 }
 
 .contenido {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   min-width: 0;
 }
 
-.encabezado {
+.titulo {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -94,39 +97,40 @@ h2 {
 .fases {
   list-style: none;
   padding: 0;
-  margin: 1rem 0 0;
+  margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+  gap: 0.65rem;
 
   li {
     display: flex;
-    gap: 0.6rem;
-    padding: 0.7rem;
-    border: 1px solid var(--borde);
+    gap: 0.65rem;
+    padding: 0.75rem;
+    border: 1px solid var(--p-content-border-color);
     border-radius: 10px;
-    opacity: 0.6;
+    opacity: 0.55;
+    transition: opacity 0.2s, background 0.2s;
 
     p {
       margin: 0.2rem 0;
-      font-size: 0.82rem;
-      color: var(--texto-suave);
+      font-size: 0.8rem;
+      color: var(--p-text-muted-color);
     }
 
-    small {
-      color: var(--texto-suave);
+    code {
+      font-size: 0.72rem;
     }
 
     &.ok {
       opacity: 1;
-      border-color: var(--exito);
-      background: var(--exito-suave);
+      border-color: var(--p-green-500);
+      background: color-mix(in srgb, var(--p-green-500) 8%, transparent);
     }
 
     &.error {
       opacity: 1;
-      border-color: var(--peligro);
-      background: var(--peligro-suave);
+      border-color: var(--p-red-500);
+      background: color-mix(in srgb, var(--p-red-500) 8%, transparent);
     }
   }
 
@@ -134,132 +138,114 @@ h2 {
     flex: none;
     display: grid;
     place-items: center;
-    width: 1.6rem;
-    height: 1.6rem;
+    width: 2rem;
+    height: 2rem;
     border-radius: 50%;
-    background: var(--borde);
-    font-weight: 700;
+    background: var(--p-content-border-color);
+    color: var(--p-text-muted-color);
   }
 
   .ok .marca {
-    background: var(--exito);
+    background: var(--p-green-500);
     color: #fff;
   }
 
   .error .marca {
-    background: var(--peligro);
+    background: var(--p-red-500);
     color: #fff;
   }
 }
 
-.tabla {
-  overflow-x: auto;
-}
+:host ::ng-deep .linea {
+  .p-timeline-event-opposite {
+    flex: 0 0 8.5rem;
+    text-align: right;
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.88rem;
-
-  th,
-  td {
-    text-align: left;
-    padding: 0.45rem 0.6rem;
-    border-bottom: 1px solid var(--borde);
-    white-space: nowrap;
-  }
-
-  th {
-    color: var(--texto-suave);
-  }
-}
-
-.linea {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-
-  li {
-    display: grid;
-    grid-template-columns: 7.5rem minmax(0, 1fr);
-    gap: 0.75rem;
-    padding: 0.55rem 0;
-    border-bottom: 1px dashed var(--borde);
-
-    &.error p {
-      color: var(--peligro);
+    @media (max-width: 640px) {
+      flex-basis: 5.5rem;
     }
   }
 
-  .tiempo {
-    display: grid;
-    font-size: 0.8rem;
-
-    small {
-      color: var(--texto-suave);
-    }
+  .p-timeline-event-content {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
+  .p-timeline-event-content {
+    padding-bottom: 1rem;
+  }
+}
+
+.tiempo {
+  display: grid;
+
+  small {
+    font-size: 0.75rem;
+  }
+}
+
+.marcador {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 0.8rem;
+  background: var(--p-surface-500);
+
+  &.rol-lider {
+    background: var(--p-green-500);
+  }
+  &.rol-seguidor {
+    background: var(--p-sky-500);
+  }
+  &.rol-candidato {
+    background: var(--p-orange-500);
+  }
+  &.rol-gateway {
+    background: var(--p-surface-700);
+  }
+}
+
+.evento {
   .quien {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
     align-items: center;
+    gap: 0.5rem;
 
-    small {
-      color: var(--texto-suave);
+    code {
+      font-size: 0.75rem;
     }
   }
 
   p {
-    margin: 0.25rem 0;
-  }
+    margin: 0.3rem 0;
 
-  .datos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 1rem;
-    font-size: 0.75rem;
-    color: var(--texto-suave);
-    overflow-wrap: anywhere;
+    &.error {
+      color: var(--p-red-500);
+    }
   }
 }
 
-.archivos {
-  display: grid;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-}
-
-.archivo .ruta {
+.datos {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  margin-bottom: 0.3rem;
-
-  .mono {
-    color: var(--texto-suave);
-    overflow-wrap: anywhere;
-  }
-}
-
-pre {
-  margin: 0;
-  padding: 0.6rem 0.8rem;
-  border-radius: 8px;
-  background: var(--consola);
-  color: var(--consola-texto);
+  gap: 0.25rem 1rem;
   font-size: 0.75rem;
-  overflow-x: auto;
-  max-height: 14rem;
-
-  .resaltada {
-    background: #3b3214;
-    color: #ffe08a;
-  }
+  color: var(--p-text-muted-color);
+  overflow-wrap: anywhere;
 }
 
-.error-txt {
-  color: var(--peligro);
+.ruta {
+  margin: 0 0 0.6rem;
+  font-size: 0.85rem;
+  color: var(--p-text-muted-color);
+  overflow-wrap: anywhere;
+}
+
+.resaltada {
+  background: #3b3214;
+  color: #ffe08a;
 }

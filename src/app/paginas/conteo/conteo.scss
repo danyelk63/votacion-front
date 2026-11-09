@@ -1,0 +1,158 @@
+:host {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.encabezado-pagina {
+  margin-bottom: 0.25rem;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+  gap: 1rem;
+}
+
+:host ::ng-deep .tile .p-card-body {
+  border-top: 4px solid var(--color, var(--p-primary-color));
+  border-radius: inherit;
+}
+
+.tile-cuerpo {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.etiqueta {
+  font-weight: 600;
+  color: var(--p-text-muted-color);
+}
+
+.hero {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.cand-cabeza {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+
+  span:last-child {
+    display: grid;
+  }
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--color);
+  color: #fff;
+  font-weight: 700;
+}
+
+.leyenda {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+
+  .item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+}
+
+.punto {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 3px;
+  background: var(--color);
+}
+
+.barra {
+  display: flex;
+  gap: 2px;
+  height: 2.5rem;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--p-content-border-color);
+}
+
+.segmento {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-basis: 0;
+  min-width: 4px;
+  background: var(--color);
+  transition: flex-grow 0.4s ease;
+  cursor: default;
+
+  span {
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+}
+
+.vacia {
+  display: grid;
+  place-items: center;
+  flex: 1;
+  color: var(--p-text-muted-color);
+  font-size: 0.85rem;
+}
+
+.dos-columnas {
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) minmax(0, 2fr);
+  gap: 1rem;
+  align-items: start;
+
+  @media (max-width: 1000px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  > * {
+    min-width: 0;
+  }
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+
+  &.ok {
+    color: var(--p-green-600);
+  }
+
+  &.pendiente {
+    color: var(--p-orange-500);
+  }
+
+  &.caido {
+    color: var(--p-red-500);
+  }
+}
+
+.cand-celda {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}

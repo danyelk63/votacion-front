@@ -1,0 +1,152 @@
+<div class="encabezado-pagina">
+  <div>
+    <h1>Conteo de votos</h1>
+    <p>Resultados confirmados por el clúster, leídos del líder en tiempo real.</p>
+  </div>
+  @if (resultados.valor(); as r) {
+    <p-tag [severity]="r.consistente ? 'success' : 'warn'" [icon]="r.consistente ? 'pi pi-verified' : 'pi pi-info-circle'"
+      [value]="'Leído del nodo ' + r.servidoPorNodo + (r.consistente ? ' (líder)' : ' (copia local)')" />
+  }
+</div>
+
+<div class="tiles">
+  <p-card class="tile">
+    <div class="tile-cuerpo">
+    <span class="etiqueta">Total de votos</span>
+    <span class="hero">{{ resultados.valor()?.total ?? 0 }}</span>
+    <span class="muted">
+      @if (lider(); as l) {
+        Va ganando <b>{{ l.nombre }}</b>
+      } @else if ((resultados.valor()?.total ?? 0) > 0) {
+        Empate
+      } @else {
+        Aún no hay votos
+      }
+    </span>
+    </div>
+  </p-card>
+  @for (c of resultados.valor()?.candidatos ?? []; track c.id) {
+    <p-card class="tile" [style.--color]="'var(--cand-' + c.id + ')'">
+      <div class="tile-cuerpo">
+      <div class="cand-cabeza">
+        <span class="avatar">{{ c.nombre.charAt(0) }}</span>
+        <span>
+          <strong>{{ c.nombre }}</strong>
+          <small class="muted">{{ c.partido }}</small>
+        </span>
+      </div>
+      <span class="hero">{{ c.votos }}</span>
+      <span class="muted">{{ c.porcentaje }}% de los votos</span>
+      </div>
+    </p-card>
+  }
+</div>
+
+<p-card>
+  <ng-template #title>Distribución</ng-template>
+  @if (resultados.valor(); as r) {
+    <div class="leyenda">
+      @for (c of r.candidatos; track c.id) {
+        <span class="item" [style.--color]="'var(--cand-' + c.id + ')'">
+          <span class="punto"></span>{{ c.nombre }}
+        </span>
+      }
+    </div>
+    <div class="barra" role="img"
+      [attr.aria-label]="r.candidatos.map((c) => c.nombre + ': ' + c.votos + ' votos').join(', ')">
+      @if (r.total === 0) {
+        <div class="vacia">Sin votos</div>
+      }
+      @for (c of r.candidatos; track c.id) {
+        @if (c.votos > 0) {
+          <div class="segmento" [style.flex-grow]="c.votos" [style.--color]="'var(--cand-' + c.id + ')'"
+            [pTooltip]="c.nombre + ': ' + c.votos + ' votos (' + c.porcentaje + '%)'" tooltipPosition="top">
+            @if (c.porcentaje >= 12) {
+              <span>{{ c.porcentaje }}%</span>
+            }
+          </div>
+        }
+      }
+    </div>
+  }
+</p-card>
+
+<div class="dos-columnas">
+  <p-card>
+    <ng-template #title>Conteo en cada nodo</ng-template>
+    <ng-template #subtitle>Todos los nodos deben llegar al mismo número: los votos están replicados.</ng-template>
+    <p-table [value]="porNodo()" dataKey="id" size="small" [scrollable]="true">
+      <ng-template #header>
+        <tr>
+          <th>Nodo</th>
+          <th>Tipo</th>
+          <th class="num">Votos aplicados</th>
+          <th>Estado</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-n>
+        <tr>
+          <td><b>Nodo {{ n.id }}</b></td>
+          <td>
+            @if (n.disponible && !n.pausado) {
+              <p-tag [value]="nombreRol[n.rol]" [severity]="severidadRol[n.rol]" [rounded]="true" />
+            } @else {
+              <p-tag value="Caído" severity="danger" [rounded]="true" />
+            }
+          </td>
+          <td class="num">{{ n.totalVotos ?? '—' }}</td>
+          <td>
+            @if (n.alDia) {
+              <span class="estado ok"><i class="pi pi-check-circle"></i> Al día</span>
+            } @else if (n.disponible && !n.pausado) {
+              <span class="estado pendiente"><i class="pi pi-sync pi-spin"></i> Replicando</span>
+            } @else {
+              <span class="estado caido"><i class="pi pi-times-circle"></i> Se pondrá al día al volver</span>
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+
+  <p-card>
+    <ng-template #title>Votos registrados</ng-template>
+    <p-table #tabla [value]="lista()" dataKey="indiceLog" [paginator]="true" [rows]="8" size="small"
+      [globalFilterFields]="['nombre', 'cedula', 'candidato']" [rowsPerPageOptions]="[8, 20, 50]" [scrollable]="true">
+      <ng-template #caption>
+        <p-iconfield>
+          <p-inputicon class="pi pi-search" />
+          <input pInputText type="text" placeholder="Buscar nombre o cédula"
+            (input)="tabla.filterGlobal($any($event.target).value, 'contains')" />
+        </p-iconfield>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th pSortableColumn="indiceLog"># Log <p-sorticon field="indiceLog" /></th>
+          <th pSortableColumn="nombre">Nombre <p-sorticon field="nombre" /></th>
+          <th>Cédula</th>
+          <th pSortableColumn="candidato">Candidato <p-sorticon field="candidato" /></th>
+          <th>Líder</th>
+          <th pSortableColumn="registradoEn">Hora <p-sorticon field="registradoEn" /></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-v>
+        <tr>
+          <td>{{ v.indiceLog }}</td>
+          <td>{{ v.nombre }}</td>
+          <td><code>{{ v.cedula }}</code></td>
+          <td>
+            <span class="cand-celda" [style.--color]="'var(--cand-' + v.candidato + ')'">
+              <span class="punto"></span>{{ nombreCandidato(v.candidato) }}
+            </span>
+          </td>
+          <td>Nodo {{ v.recibidoPorNodo }}</td>
+          <td><code>{{ v.registradoEn | date: 'HH:mm:ss.SSS' }}</code></td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr><td colspan="6" class="muted">Aún no hay votos.</td></tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

@@ -1,4 +1,5 @@
 import { Component, computed, input } from '@angular/core';
+import { TagModule } from 'primeng/tag';
 import { Evento } from '../core/modelos';
 
 export const NOMBRE_ROL: Record<string, string> = {
@@ -8,20 +9,32 @@ export const NOMBRE_ROL: Record<string, string> = {
   GATEWAY: 'Gateway',
 };
 
-/** Muestra quién generó un evento: "Nodo 2 · Líder · t3" o "Gateway". */
+type Severidad = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
+
+export const SEVERIDAD_ROL: Record<string, Severidad> = {
+  LIDER: 'success',
+  SEGUIDOR: 'info',
+  CANDIDATO: 'warn',
+  GATEWAY: 'contrast',
+};
+
+export const ICONO_ROL: Record<string, string> = {
+  LIDER: 'pi pi-crown',
+  SEGUIDOR: 'pi pi-user',
+  CANDIDATO: 'pi pi-megaphone',
+  GATEWAY: 'pi pi-arrow-right-arrow-left',
+};
+
+/** Quién generó un evento: "Nodo 2 [Líder] t3" o "Gateway". */
 @Component({
   selector: 'app-origen',
+  imports: [TagModule],
   template: `
-    <span class="origen" [class]="'rol-' + evento().rol.toLowerCase()">
-      @if (evento().nodoId !== null) {
-        <b>Nodo {{ evento().nodoId }}</b>
-        <span class="pill">{{ rol() }}</span>
-        @if (mostrarTermino()) {
-          <small>t{{ evento().termino }}</small>
-        }
-      } @else {
-        <b>Gateway</b>
-        <span class="pill">HTTP · RMI · WS</span>
+    <span class="origen">
+      <b>{{ evento().nodoId !== null ? 'Nodo ' + evento().nodoId : 'Gateway' }}</b>
+      <p-tag [value]="rol()" [severity]="severidad()" [icon]="icono()" [rounded]="true" class="tag-rol" />
+      @if (mostrarTermino() && evento().termino !== null) {
+        <small>t{{ evento().termino }}</small>
       }
     </span>
   `,
@@ -29,33 +42,16 @@ export const NOMBRE_ROL: Record<string, string> = {
     .origen {
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.4rem;
       white-space: nowrap;
     }
-    .pill {
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      padding: 0.05rem 0.45rem;
-      border-radius: 999px;
-      color: #fff;
-      background: var(--texto-suave);
-    }
     small {
-      color: var(--texto-suave);
+      color: var(--p-text-muted-color);
+      font-variant-numeric: tabular-nums;
     }
-    .rol-lider .pill {
-      background: var(--exito);
-    }
-    .rol-seguidor .pill {
-      background: var(--primario);
-    }
-    .rol-candidato .pill {
-      background: var(--advertencia);
-    }
-    .rol-gateway .pill {
-      background: var(--gateway);
+    :host ::ng-deep .tag-rol {
+      font-size: 0.7rem;
+      padding: 0.1rem 0.5rem;
     }
   `,
 })
@@ -63,4 +59,6 @@ export class Origen {
   readonly evento = input.required<Evento>();
   readonly mostrarTermino = input(true);
   protected readonly rol = computed(() => NOMBRE_ROL[this.evento().rol] ?? this.evento().rol);
+  protected readonly severidad = computed(() => SEVERIDAD_ROL[this.evento().rol] ?? 'secondary');
+  protected readonly icono = computed(() => ICONO_ROL[this.evento().rol] ?? '');
 }

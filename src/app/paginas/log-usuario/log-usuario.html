@@ -1,0 +1,86 @@
+<div class="rejilla">
+  <section class="tarjeta ancho">
+    <h2>Log del usuario</h2>
+    <p class="nota">
+      Auditoría de lo que hace cada persona en el sistema: quién, cuándo (con milisegundos), desde qué IP y
+      navegador, qué pidió, qué nodo la atendió y qué respondió el sistema. Las cédulas se guardan enmascaradas.
+    </p>
+    <div class="contadores">
+      <div><b>{{ totales().aceptados }}</b><span>votos aceptados</span></div>
+      <div><b>{{ totales().rechazados }}</b><span>intentos rechazados</span></div>
+      <div><b>{{ totales().operador }}</b><span>acciones de operador</span></div>
+    </div>
+  </section>
+
+  <section class="tarjeta ancho">
+    <h3>Cómo se genera este log</h3>
+    <ol class="pasos">
+      <li>El navegador envía la acción al <b>gateway</b> por HTTP (por ejemplo <code>POST /api/votos</code>).</li>
+      <li>El gateway toma la <b>IP</b> y el <b>navegador</b> (cabecera User-Agent), asigna una <b>traza</b> y procesa la petición en el clúster por RMI.</li>
+      <li>Cuando tiene el resultado, agrega <b>una línea</b> en el archivo <code>usuarios.log</code> con la hora, la acción, el resultado y los datos de la persona (cédula enmascarada).</li>
+      <li>Publica la misma acción como evento <b>USUARIO</b>, que llega a esta pantalla por <b>WebSocket</b> en tiempo real.</li>
+    </ol>
+  </section>
+
+  <section class="tarjeta ancho">
+    <h3>Acciones en tiempo real</h3>
+    <div class="tabla">
+      <table>
+        <thead>
+          <tr>
+            <th>Hora</th>
+            <th>Acción</th>
+            <th>Resultado</th>
+            <th>Nombre</th>
+            <th>Cédula</th>
+            <th>Candidato</th>
+            <th>IP</th>
+            <th>Navegador</th>
+            <th>Nodo que atendió</th>
+            <th>Detalle</th>
+            <th>Traza</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of acciones(); track a.secuencia) {
+            <tr>
+              <td class="mono">{{ a.hora | hora: true }}</td>
+              <td><b>{{ a.etapa }}</b></td>
+              <td><span class="resultado" [class]="'resultado ' + clase(a.datos['resultado'])">{{ a.datos['resultado'] }}</span></td>
+              <td>{{ guion(a.datos['nombre']) }}</td>
+              <td class="mono">{{ guion(a.datos['cedula']) }}</td>
+              <td>{{ guion(a.datos['candidato']) }}</td>
+              <td class="mono">{{ guion(a.datos['ip']) }}</td>
+              <td>{{ guion(a.datos['navegador']) }}</td>
+              <td>{{ a.datos['nodoAtendio'] && a.datos['nodoAtendio'] !== '-' && a.datos['nodoAtendio'] !== 'null' ? 'Nodo ' + a.datos['nodoAtendio'] : '—' }}</td>
+              <td class="detalle">{{ guion(a.datos['detalle']) }}</td>
+              <td>
+                @if (a.traza) {
+                  <a class="mono" [routerLink]="['/procesamiento']" [queryParams]="{ traza: a.traza }">{{ a.traza }}</a>
+                } @else {
+                  —
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="11" class="nota">Sin acciones todavía.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="tarjeta ancho">
+    <div class="encabezado">
+      <h3>Archivo en el servidor</h3>
+      <button type="button" class="boton" (click)="cargar()">Recargar</button>
+    </div>
+    @if (archivo(); as f) {
+      <p class="nota mono">{{ f.ruta }} · {{ f.totalLineas }} líneas</p>
+      <pre class="mono">@for (l of f.lineas; track $index) {{{ l }}
+}</pre>
+    } @else {
+      <p class="nota">Cargando…</p>
+    }
+  </section>
+</div>

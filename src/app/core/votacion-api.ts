@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
+  Archivos,
   Candidato,
   EstadoCluster,
   EstadoNodo,
@@ -40,6 +41,10 @@ export class VotacionApi {
 
   cluster(): Observable<EstadoCluster> {
     return this.http.get<EstadoCluster>(`${this.base}/cluster`);
+  }
+
+  archivos(): Observable<Archivos> {
+    return this.http.get<Archivos>(`${this.base}/archivos`);
   }
 
   pausar(id: number): Observable<EstadoNodo> {

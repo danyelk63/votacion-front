@@ -1,0 +1,265 @@
+:host {
+  display: block;
+}
+
+h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+}
+
+.disposicion {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+
+  @media (max-width: 800px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lista {
+  display: grid;
+  gap: 0.5rem;
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+
+  @media (max-width: 800px) {
+    position: static;
+    max-height: 18rem;
+  }
+}
+
+.item {
+  display: grid;
+  gap: 0.1rem;
+  text-align: left;
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: var(--fondo);
+  color: var(--texto);
+  cursor: pointer;
+
+  &.activo {
+    border-color: var(--primario);
+    background: var(--primario-suave);
+  }
+
+  .hora {
+    color: var(--texto-suave);
+    font-size: 0.78rem;
+  }
+}
+
+.estado {
+  justify-self: start;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+
+  &.ok {
+    background: var(--exito-suave);
+    color: var(--exito);
+  }
+  &.proceso {
+    background: var(--advertencia-suave);
+    color: var(--advertencia);
+  }
+  &.error {
+    background: var(--peligro-suave);
+    color: var(--peligro);
+  }
+}
+
+.contenido {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fases {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.6rem;
+
+  li {
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.7rem;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    opacity: 0.6;
+
+    p {
+      margin: 0.2rem 0;
+      font-size: 0.82rem;
+      color: var(--texto-suave);
+    }
+
+    small {
+      color: var(--texto-suave);
+    }
+
+    &.ok {
+      opacity: 1;
+      border-color: var(--exito);
+      background: var(--exito-suave);
+    }
+
+    &.error {
+      opacity: 1;
+      border-color: var(--peligro);
+      background: var(--peligro-suave);
+    }
+  }
+
+  .marca {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: var(--borde);
+    font-weight: 700;
+  }
+
+  .ok .marca {
+    background: var(--exito);
+    color: #fff;
+  }
+
+  .error .marca {
+    background: var(--peligro);
+    color: #fff;
+  }
+}
+
+.tabla {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.45rem 0.6rem;
+    border-bottom: 1px solid var(--borde);
+    white-space: nowrap;
+  }
+
+  th {
+    color: var(--texto-suave);
+  }
+}
+
+.linea {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px dashed var(--borde);
+
+    &.error p {
+      color: var(--peligro);
+    }
+  }
+
+  .tiempo {
+    display: grid;
+    font-size: 0.8rem;
+
+    small {
+      color: var(--texto-suave);
+    }
+  }
+
+  .quien {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+
+    small {
+      color: var(--texto-suave);
+    }
+  }
+
+  p {
+    margin: 0.25rem 0;
+  }
+
+  .datos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    font-size: 0.75rem;
+    color: var(--texto-suave);
+    overflow-wrap: anywhere;
+  }
+}
+
+.archivos {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.archivo .ruta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
+
+  .mono {
+    color: var(--texto-suave);
+    overflow-wrap: anywhere;
+  }
+}
+
+pre {
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: var(--consola);
+  color: var(--consola-texto);
+  font-size: 0.75rem;
+  overflow-x: auto;
+  max-height: 14rem;
+
+  .resaltada {
+    background: #3b3214;
+    color: #ffe08a;
+  }
+}
+
+.error-txt {
+  color: var(--peligro);
+}

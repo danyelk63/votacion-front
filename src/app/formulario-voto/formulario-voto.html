@@ -47,7 +47,9 @@
         @if (r.reenviadoPor) {
           El gateway llamó al nodo {{ r.reenviadoPor }}, que lo reenvió al líder por RMI.
         }
+        Tiempo total: {{ r.duracionMs }} ms · traza <code>{{ r.traza }}</code>
       </span>
+      <a [routerLink]="['/procesamiento']" [queryParams]="{ traza: r.traza }">Ver cómo se procesó este voto →</a>
     </div>
   }
   @if (error(); as e) {

@@ -1,0 +1,80 @@
+<section class="tarjeta">
+  <div class="titulo">
+    <h2>Log del servidor en tiempo real</h2>
+    <p class="nota">
+      Cada nodo envía sus eventos al gateway con un <b>callback RMI</b> (<code>OyenteEventos.recibir()</code>) y el
+      gateway los empuja a este navegador por <b>WebSocket</b>. Cada línea dice qué nodo la generó, qué
+      <b>tipo de nodo</b> era en ese momento (líder, seguidor o candidato), su término de Raft y la hora exacta en
+      milisegundos. También queda escrito en <code>datos/nodo-N/eventos.log</code>.
+    </p>
+  </div>
+
+  <div class="controles">
+    <label>
+      Origen
+      <select class="campo-filtro" [value]="filtroNodo()" (change)="filtroNodo.set(texto($event))">
+        <option value="todos">Todos</option>
+        <option value="gateway">Gateway</option>
+        @for (n of nodosConocidos(); track n) {
+          <option [value]="n">Nodo {{ n }}</option>
+        }
+      </select>
+    </label>
+    <input class="campo-filtro buscar" type="search" placeholder="Buscar texto, etapa o traza…"
+      [value]="filtroTexto()" (input)="filtroTexto.set(texto($event))" aria-label="Buscar" />
+    <button type="button" class="boton" [class.activo]="pausado()" (click)="alternarPausa()">
+      {{ pausado() ? '▶ Reanudar' : '⏸ Congelar' }}
+    </button>
+  </div>
+
+  <div class="categorias" role="group" aria-label="Categorías">
+    @for (c of categorias; track c.id) {
+      <button type="button" class="boton cat" [class.activo]="categoriasActivas().has(c.id)"
+        (click)="alternarCategoria(c.id)" [title]="c.explica">
+        <span class="chip-cat" [class]="'chip-cat cat-' + c.id.toLowerCase()">{{ c.nombre }}</span>
+        <small>{{ porCategoria()[c.id] ?? 0 }}</small>
+      </button>
+    }
+  </div>
+</section>
+
+<section class="consola" aria-live="polite">
+  <div class="fila cabeza">
+    <span>#</span>
+    <span>Hora</span>
+    <span>Origen / tipo de nodo</span>
+    <span>Categoría</span>
+    <span>Mensaje</span>
+  </div>
+  @for (e of filtrados(); track e.secuencia) {
+    <div class="fila" [class.abierta]="expandido() === e.secuencia" (click)="alternarDetalle(e.secuencia)">
+      <span class="sec">{{ e.secuencia }}</span>
+      <span class="mono hora">{{ e.hora | hora }}</span>
+      <span><app-origen [evento]="e" /></span>
+      <span>
+        <span class="chip-cat" [class]="'chip-cat cat-' + e.categoria.toLowerCase()">{{ e.categoria }}</span>
+        @if (e.etapa) {
+          <small class="etapa mono">{{ e.etapa }}</small>
+        }
+      </span>
+      <span class="mensaje">
+        {{ e.mensaje }}
+        @if (e.traza) {
+          <a class="traza mono" [routerLink]="['/procesamiento']" [queryParams]="{ traza: e.traza }"
+            (click)="$event.stopPropagation()">traza {{ e.traza }}</a>
+        }
+      </span>
+      @if (expandido() === e.secuencia) {
+        <div class="detalle mono">
+          <div>fuente={{ e.fuente }} · nodo={{ e.nodoId ?? '-' }} · rol={{ e.rol }} · término={{ e.termino ?? '-' }}
+            · hora={{ e.hora }}</div>
+          @for (d of datos(e); track d[0]) {
+            <div>{{ d[0] }} = {{ d[1] }}</div>
+          }
+        </div>
+      }
+    </div>
+  } @empty {
+    <p class="vacio">No hay eventos que coincidan. Registre un voto o tumbe un nodo para ver actividad.</p>
+  }
+</section>

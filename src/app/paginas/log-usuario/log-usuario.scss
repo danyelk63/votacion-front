@@ -1,0 +1,96 @@
+h2,
+h3 {
+  margin: 0 0 0.5rem;
+}
+
+.contadores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.75rem;
+
+  div {
+    display: grid;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    min-width: 9rem;
+  }
+
+  b {
+    font-size: 1.6rem;
+  }
+
+  span {
+    color: var(--texto-suave);
+    font-size: 0.85rem;
+  }
+}
+
+.pasos {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.tabla {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.45rem 0.6rem;
+    border-bottom: 1px solid var(--borde);
+    white-space: nowrap;
+  }
+
+  th {
+    color: var(--texto-suave);
+  }
+
+  .detalle {
+    white-space: normal;
+    min-width: 16rem;
+  }
+}
+
+.resultado {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+
+  &.ok {
+    background: var(--exito-suave);
+    color: var(--exito);
+  }
+
+  &.error {
+    background: var(--peligro-suave);
+    color: var(--peligro);
+  }
+}
+
+.encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+pre {
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: var(--consola);
+  color: var(--consola-texto);
+  font-size: 0.75rem;
+  overflow-x: auto;
+  max-height: 20rem;
+}

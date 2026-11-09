@@ -1,12 +1,13 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Candidato, ErrorApi, ResultadoRegistro } from '../core/modelos';
 import { VotacionApi } from '../core/votacion-api';
 
 @Component({
   selector: 'app-formulario-voto',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './formulario-voto.html',
   styleUrl: './formulario-voto.scss',
 })

@@ -1,0 +1,140 @@
+<div class="disposicion">
+  <aside class="tarjeta lista">
+    <h2>Votos recibidos</h2>
+    <p class="nota">Cada voto lleva un id de <b>traza</b> que lo sigue por todo el sistema.</p>
+    @for (t of trazas(); track t.traza) {
+      <button type="button" class="item" [class.activo]="t.traza === seleccion()" (click)="elegir(t.traza)">
+        <span class="mono hora">{{ t.hora | hora }}</span>
+        <strong>{{ t.nombre || '(sin nombre)' }}</strong>
+        <span class="mono">CC {{ t.cedula }}</span>
+        <span class="estado" [class]="'estado ' + claseEstado(t.estado)">{{ t.estado }}</span>
+      </button>
+    } @empty {
+      <p class="nota">Aún no hay votos. Registre uno en la vista 1.</p>
+    }
+  </aside>
+
+  <div class="contenido">
+    @if (seleccion(); as t) {
+      <section class="tarjeta">
+        <div class="encabezado">
+          <h2>Recorrido del voto <span class="mono">{{ t }}</span></h2>
+          @if (resumen(); as r) {
+            <span class="estado" [class]="'estado ' + claseEstado(r.estado)">{{ r.estado }}</span>
+          }
+        </div>
+        @if (resumen(); as r) {
+          <p class="nota">{{ r.nombre }} · CC {{ r.cedula }} · recibido a las {{ r.hora | hora: true }}</p>
+        }
+
+        <ol class="fases">
+          @for (f of estadoFases(); track f.fase.titulo) {
+            <li [class]="f.estado">
+              <span class="marca" aria-hidden="true">{{ f.estado === 'ok' ? '✓' : f.estado === 'error' ? '✕' : '…' }}</span>
+              <div>
+                <strong>{{ f.fase.titulo }}</strong>
+                <p>{{ f.fase.descripcion }}</p>
+                @if (f.eventos.length) {
+                  <small class="mono">{{ f.eventos[0].hora | hora }} · {{ f.eventos.length }} evento(s)</small>
+                }
+              </div>
+            </li>
+          }
+        </ol>
+      </section>
+
+      <section class="tarjeta">
+        <h2>Qué hizo cada nodo con este voto</h2>
+        <div class="tabla">
+          <table>
+            <thead>
+              <tr>
+                <th>Nodo</th>
+                <th>Tipo de nodo</th>
+                <th>Lo recibió en su log</th>
+                <th>Lo aplicó en memoria</th>
+                <th>Lo guardó en archivo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (n of porNodo(); track n.id) {
+                <tr>
+                  <td><b>Nodo {{ n.id }}</b></td>
+                  <td>{{ n.rol }}</td>
+                  <td class="mono">{{ n.recibio ? (n.recibio.hora | hora) : '—' }}</td>
+                  <td class="mono">{{ n.aplico ? (n.aplico.hora | hora) : '—' }}</td>
+                  <td class="mono">
+                    @if (n.guardo) {
+                      {{ n.guardo.hora | hora }} · registro {{ n.guardo.datos['registro'] }}
+                    } @else {
+                      —
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="5" class="nota">Ningún nodo ha procesado este voto todavía.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tarjeta">
+        <h2>Línea de tiempo completa ({{ eventos().length }} eventos)</h2>
+        <ol class="linea">
+          @for (e of eventos(); track e.secuencia) {
+            <li [class.error]="e.etapa === 'RECHAZADO'">
+              <div class="tiempo mono">
+                <span>{{ e.hora | hora }}</span>
+                <small>{{ desdeInicio(e) }}</small>
+              </div>
+              <div class="cuerpo">
+                <div class="quien">
+                  <app-origen [evento]="e" />
+                  <span class="chip-cat" [class]="'chip-cat cat-' + e.categoria.toLowerCase()">{{ e.categoria }}</span>
+                  <small class="mono">{{ e.etapa }}</small>
+                </div>
+                <p>{{ e.mensaje }}</p>
+                @if (datos(e).length) {
+                  <div class="datos mono">
+                    @for (d of datos(e); track d[0]) {
+                      <span>{{ d[0] }}: {{ d[1] }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            </li>
+          }
+        </ol>
+      </section>
+    }
+
+    <section class="tarjeta">
+      <div class="encabezado">
+        <h2>Cómo se guarda: archivos de texto en cada servidor</h2>
+        <button type="button" class="boton" (click)="cargarArchivos()">Recargar</button>
+      </div>
+      <p class="nota">
+        No hay base de datos: cada nodo agrega una línea a su propio <code>votos.txt</code> cuando el voto queda
+        confirmado. Los 3 archivos deben ser iguales, porque los votos están replicados. Se lee por RMI con
+        <code>leerArchivo()</code>. Resaltado: el voto seleccionado.
+      </p>
+      <div class="archivos">
+        @for (a of archivos()?.nodos ?? []; track a.nodoId) {
+          <div class="archivo">
+            <div class="ruta">
+              <b>Nodo {{ a.nodoId }}</b>
+              @if (a.disponible) {
+                <span class="mono">{{ a.ruta }}</span>
+              } @else {
+                <span class="error-txt">no responde</span>
+              }
+            </div>
+            <pre class="mono">@for (l of a.lineas ?? []; track $index) {<span [class.resaltada]="resaltada(l)">{{ l }}
+</span>}</pre>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+</div>

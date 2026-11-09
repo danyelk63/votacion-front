@@ -1,22 +1,21 @@
 <header class="cabecera">
-  <h1>Votación distribuida</h1>
-  <p>Cada voto se replica entre varios nodos Java comunicados por RMI y se confirma por consenso (Raft).</p>
+  <div>
+    <h1>Votación distribuida</h1>
+    <p>Nodos Java comunicados por RMI · consenso Raft · eventos en tiempo real por WebSocket</p>
+  </div>
+  <span class="conexion" [class.activa]="eventos.conectado()" role="status">
+    <span class="punto"></span>
+    {{ eventos.conectado() ? 'WebSocket conectado' : 'WebSocket desconectado' }} · {{ eventos.total() }} eventos
+  </span>
 </header>
 
+<nav class="pestanas" aria-label="Vistas">
+  <a routerLink="/votar" routerLinkActive="activa">1. Registrar voto</a>
+  <a routerLink="/log-servidor" routerLinkActive="activa">2. Log del servidor</a>
+  <a routerLink="/procesamiento" routerLinkActive="activa">3. Procesamiento del voto</a>
+  <a routerLink="/log-usuario" routerLinkActive="activa">4. Log del usuario</a>
+</nav>
+
 <main>
-  <section class="tarjeta">
-    <app-formulario-voto [candidatos]="candidatos()" />
-  </section>
-
-  <section class="tarjeta">
-    <app-resultados [resultados]="resultados.valor()" />
-  </section>
-
-  <section class="tarjeta ancho">
-    <app-panel-cluster />
-  </section>
-
-  <section class="tarjeta ancho">
-    <app-lista-votos [listado]="votos.valor()" [candidatos]="candidatos()" />
-  </section>
+  <router-outlet />
 </main>

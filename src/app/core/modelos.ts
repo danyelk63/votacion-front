@@ -13,6 +13,8 @@ export interface SolicitudVoto {
 }
 
 export interface ResultadoRegistro {
+  traza: string;
+  duracionMs: number;
   mensaje: string;
   indiceLog: number;
   termino: number;
@@ -77,4 +79,39 @@ export interface ErrorApi {
   error: string;
   codigo?: string;
   detalles?: string[];
+}
+
+// ------------------------------------------------------------------ trazabilidad
+
+export type RolEvento = 'LIDER' | 'SEGUIDOR' | 'CANDIDATO' | 'GATEWAY';
+export type Categoria = 'SISTEMA' | 'ELECCION' | 'VOTO' | 'REPLICACION' | 'PERSISTENCIA' | 'RED' | 'USUARIO';
+
+/** Evento que llega por WebSocket (generado por un nodo o por el gateway). */
+export interface Evento {
+  secuencia: number;
+  hora: string;
+  fuente: 'NODO' | 'GATEWAY';
+  nodoId: number | null;
+  rol: RolEvento;
+  termino: number | null;
+  categoria: Categoria;
+  etapa: string | null;
+  traza: string | null;
+  mensaje: string;
+  datos: Record<string, string>;
+}
+
+export type MensajeWs = { tipo: 'historial'; eventos: Evento[] } | { tipo: 'evento'; evento: Evento };
+
+export interface ArchivoNodo {
+  nodoId: number;
+  disponible: boolean;
+  ruta?: string;
+  totalLineas?: number;
+  lineas?: string[];
+}
+
+export interface Archivos {
+  nodos: ArchivoNodo[];
+  usuarios: { ruta: string; totalLineas: number; lineas: string[] };
 }

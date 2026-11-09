@@ -2,6 +2,8 @@
 
 Frontend en **Angular 22 + PrimeNG 22** (tema Aura, modo claro y oscuro) del sistema distribuido de votación. El backend está en [votacion-back](https://github.com/danyelk63/votacion-back): nodos Java comunicados por **RMI** y coordinados con el consenso **Raft**.
 
+**Publicado en:** https://votacion-front.vercel.app (backend: https://votacion-back-u8f6.onrender.com)
+
 Todo lo que pasa en el servidor llega a la pantalla **en tiempo real por WebSocket**, con la hora exacta en milisegundos y el **tipo de nodo** que lo procesó: líder, seguidor, candidato o gateway.
 
 ## Vistas
@@ -49,6 +51,11 @@ En desarrollo, `ng serve` redirige `/api` a `localhost:8080` y `/ws` a `localhos
 npm install
 npm start          # http://localhost:4200
 ```
+
+## Publicación
+
+- **Frontend → Vercel.** Ver [`vercel.json`](vercel.json). En producción, [`environment.prod.ts`](src/environments/environment.prod.ts) apunta la API y el WebSocket directo a Render, porque Vercel no hace de proxy para WebSocket.
+- **Backend → Render**, plan gratuito, con Docker (ver el README de `votacion-back`). Si el servidor estaba dormido, la app muestra un aviso mientras despierta (hasta ~1 minuto).
 
 ## Estructura
 

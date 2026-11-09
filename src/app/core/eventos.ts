@@ -1,5 +1,6 @@
 import { Injectable, OnDestroy, computed, signal } from '@angular/core';
 import { Evento, MensajeWs } from './modelos';
+import { environment } from '../../environments/environment';
 
 const MAX_EVENTOS = 5000;
 
@@ -26,7 +27,7 @@ export class EventosService implements OnDestroy {
 
   private conectar(): void {
     const protocolo = location.protocol === 'https:' ? 'wss' : 'ws';
-    const ws = new WebSocket(`${protocolo}://${location.host}/ws`);
+    const ws = new WebSocket(environment.wsUrl ?? `${protocolo}://${location.host}/ws`);
     this.socket = ws;
     ws.onopen = () => this.conectado.set(true);
     ws.onmessage = (m) => this.procesar(JSON.parse(m.data) as MensajeWs);

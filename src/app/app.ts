@@ -1,8 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TagModule } from 'primeng/tag';
+import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { EventosService } from './core/eventos';
@@ -16,7 +17,17 @@ interface Seccion {
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, ButtonModule, TagModule, ToastModule, ConfirmDialogModule, TooltipModule],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    ButtonModule,
+    MessageModule,
+    TagModule,
+    ToastModule,
+    ConfirmDialogModule,
+    TooltipModule,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -33,8 +44,13 @@ export class App {
 
   protected readonly oscuro = signal(this.preferenciaInicial());
 
+  /** Se da un margen antes de avisar, para no mostrarlo en una conexión normal. */
+  private readonly margenCumplido = signal(false);
+  protected readonly despertando = computed(() => this.margenCumplido() && !this.eventos.conectado());
+
   constructor() {
     this.aplicarTema();
+    setTimeout(() => this.margenCumplido.set(true), 2500);
   }
 
   protected alternarTema(): void {

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 import {
   Archivos,
   Candidato,
@@ -17,12 +18,12 @@ import {
  * Cliente del API Gateway. El navegador no habla RMI: el gateway Java recibe
  * estas peticiones HTTP y las convierte en llamadas RMI a los nodos del clúster.
  *
- * En desarrollo, "/api" se redirige a http://localhost:8080 con proxy.conf.json.
+ * En desarrollo "/api" va al gateway local (proxy.conf.json); en producción, a Render.
  */
 @Injectable({ providedIn: 'root' })
 export class VotacionApi {
   private readonly http = inject(HttpClient);
-  private readonly base = '/api';
+  private readonly base = environment.apiBase;
 
   candidatos(): Observable<Candidato[]> {
     return this.http.get<Candidato[]>(`${this.base}/candidatos`);

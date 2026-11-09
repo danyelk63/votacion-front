@@ -41,5 +41,10 @@
 </header>
 
 <main class="contenedor contenido">
+  @if (despertando()) {
+    <p-message severity="warn" icon="pi pi-spin pi-spinner" class="aviso-servidor">
+      Conectando con el servidor… Si estaba dormido (plan gratuito de Render), puede tardar hasta un minuto en despertar.
+    </p-message>
+  }
   <router-outlet />
 </main>

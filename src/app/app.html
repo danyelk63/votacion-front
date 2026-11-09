@@ -1,0 +1,22 @@
+<header class="cabecera">
+  <h1>Votación distribuida</h1>
+  <p>Cada voto se replica entre varios nodos Java comunicados por RMI y se confirma por consenso (Raft).</p>
+</header>
+
+<main>
+  <section class="tarjeta">
+    <app-formulario-voto [candidatos]="candidatos()" />
+  </section>
+
+  <section class="tarjeta">
+    <app-resultados [resultados]="resultados.valor()" />
+  </section>
+
+  <section class="tarjeta ancho">
+    <app-panel-cluster />
+  </section>
+
+  <section class="tarjeta ancho">
+    <app-lista-votos [listado]="votos.valor()" [candidatos]="candidatos()" />
+  </section>
+</main>

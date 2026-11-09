@@ -1,0 +1,40 @@
+:host {
+  display: grid;
+  gap: 0.8rem;
+}
+
+h2,
+p {
+  margin: 0;
+}
+
+.tabla {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--borde);
+  white-space: nowrap;
+}
+
+th {
+  color: var(--texto-suave);
+  font-weight: 600;
+}
+
+.mono {
+  font-family: ui-monospace, monospace;
+}
+
+.nota {
+  color: var(--texto-suave);
+}

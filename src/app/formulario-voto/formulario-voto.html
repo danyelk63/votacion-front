@@ -1,0 +1,61 @@
+<form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+  <h2>Registrar voto</h2>
+
+  <label class="campo">
+    <span>Nombre completo</span>
+    <input type="text" formControlName="nombre" autocomplete="name" placeholder="Ej. Ana María Pérez" />
+    @if (invalido('nombre')) {
+      <small class="error">Ingrese entre 3 y 100 letras.</small>
+    }
+  </label>
+
+  <label class="campo">
+    <span>Cédula de ciudadanía</span>
+    <input type="text" inputmode="numeric" formControlName="cedula" placeholder="Solo números, sin puntos" />
+    @if (invalido('cedula')) {
+      <small class="error">La cédula debe tener entre 6 y 10 dígitos.</small>
+    }
+  </label>
+
+  <fieldset class="candidatos">
+    <legend>Escoja un candidato</legend>
+    @for (c of candidatos(); track c.id) {
+      <label class="candidato" [class.seleccionado]="form.controls.candidato.value === c.id">
+        <input type="radio" formControlName="candidato" [value]="c.id" />
+        <span class="inicial">{{ c.nombre.charAt(0) }}</span>
+        <span>
+          <strong>{{ c.nombre }}</strong>
+          <small>{{ c.partido }}</small>
+        </span>
+      </label>
+    }
+    @if (invalido('candidato')) {
+      <small class="error">Debe escoger un candidato.</small>
+    }
+  </fieldset>
+
+  <button type="submit" [disabled]="enviando()">
+    {{ enviando() ? 'Replicando en el clúster…' : 'Votar' }}
+  </button>
+
+  @if (exito(); as r) {
+    <div class="aviso ok" role="status">
+      <strong>¡Voto registrado!</strong>
+      <span>
+        Lo confirmó el <b>nodo {{ r.lider }}</b> (líder, término {{ r.termino }}) como entrada
+        <b>#{{ r.indiceLog }}</b> del log, replicada en la mayoría del clúster.
+        @if (r.reenviadoPor) {
+          El gateway llamó al nodo {{ r.reenviadoPor }}, que lo reenvió al líder por RMI.
+        }
+      </span>
+    </div>
+  }
+  @if (error(); as e) {
+    <div class="aviso falla" role="alert">
+      <strong>{{ e.error }}</strong>
+      @for (d of e.detalles ?? []; track d) {
+        <span>{{ d }}</span>
+      }
+    </div>
+  }
+</form>

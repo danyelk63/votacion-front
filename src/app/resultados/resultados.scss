@@ -1,0 +1,52 @@
+:host {
+  display: grid;
+  gap: 0.8rem;
+}
+
+h2,
+p {
+  margin: 0;
+}
+
+.total {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.fila {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.etiqueta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+
+  span {
+    color: var(--texto-suave);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.barra {
+  height: 0.75rem;
+  border-radius: 999px;
+  background: var(--borde);
+  overflow: hidden;
+}
+
+.relleno {
+  height: 100%;
+  background: var(--primario);
+  transition: width 0.4s ease;
+}
+
+.fila:nth-of-type(even) .relleno {
+  background: var(--secundario);
+}
+
+.nota {
+  color: var(--texto-suave);
+  font-size: 0.85rem;
+}
